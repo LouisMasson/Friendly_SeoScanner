@@ -16,6 +16,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { AnalysisResult, SEOStatusType } from "@/lib/types";
 import { truncateString } from "@/lib/utils";
+import { CheckCircle, AlertTriangle, XCircle } from "lucide-react";
 
 interface SEOTagsAnalysisProps {
   result: AnalysisResult;
@@ -25,31 +26,34 @@ export default function SEOTagsAnalysis({ result }: SEOTagsAnalysisProps) {
   const [open, setOpen] = useState(true);
   
   const getStatusBadge = (status: SEOStatusType) => {
-    let variant: "outline" | "destructive" | "secondary" = "outline";
     let label = "Unknown";
+    let icon = null;
+    let colorClass = "";
     
     switch (status) {
       case 'good':
         label = "Good";
+        icon = <CheckCircle className="h-3.5 w-3.5 mr-1" />;
+        colorClass = "bg-green-50 text-green-600 border-green-200";
         break;
       case 'warning':
         label = "Improve";
+        icon = <AlertTriangle className="h-3.5 w-3.5 mr-1" />;
+        colorClass = "bg-amber-50 text-amber-600 border-amber-200";
         break;
       case 'error':
         label = "Missing";
+        icon = <XCircle className="h-3.5 w-3.5 mr-1" />;
+        colorClass = "bg-red-50 text-red-600 border-red-200";
         break;
     }
     
     return (
       <Badge 
-        variant={variant} 
-        className={`
-          ${status === 'good' ? 'bg-success/10 text-success' : 
-            status === 'warning' ? 'bg-warning/10 text-warning' : 
-            'bg-destructive/10 text-destructive'}
-          px-2 py-0.5 rounded-full text-xs font-medium
-        `}
+        variant="outline" 
+        className={`${colorClass} px-2 py-0.5 rounded-full text-xs font-medium flex items-center`}
       >
+        {icon}
         {label}
       </Badge>
     );

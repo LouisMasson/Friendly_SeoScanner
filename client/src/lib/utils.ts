@@ -23,13 +23,13 @@ export function formatUrl(url: string): string {
 export function getStatusColor(status: SEOStatusType): string {
   switch (status) {
     case 'good':
-      return 'bg-success/10 text-success';
+      return 'bg-green-50 text-green-600 border-green-200';
     case 'warning':
-      return 'bg-warning/10 text-warning';
+      return 'bg-amber-50 text-amber-600 border-amber-200';
     case 'error':
-      return 'bg-destructive/10 text-destructive';
+      return 'bg-red-50 text-red-600 border-red-200';
     default:
-      return 'bg-muted text-muted-foreground';
+      return 'bg-gray-50 text-gray-600 border-gray-200';
   }
 }
 

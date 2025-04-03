@@ -12,6 +12,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { AnalysisResult, SEOStatusType } from "@/lib/types";
+import { CheckCircle, AlertTriangle, XCircle } from "lucide-react";
 
 interface RecommendationsProps {
   result: AnalysisResult;
@@ -20,16 +21,32 @@ interface RecommendationsProps {
 export default function Recommendations({ result }: RecommendationsProps) {
   const [open, setOpen] = useState(true);
   
-  const getBorderColor = (status: SEOStatusType) => {
+  const getRecommendationStyles = (status: SEOStatusType) => {
     switch (status) {
       case 'good':
-        return 'border-success bg-success/5';
+        return {
+          border: 'border-green-300 bg-green-50',
+          icon: <CheckCircle className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" />,
+          title: 'text-green-700'
+        };
       case 'warning':
-        return 'border-warning bg-warning/5';
+        return {
+          border: 'border-amber-300 bg-amber-50',
+          icon: <AlertTriangle className="h-5 w-5 text-amber-500 mr-2 flex-shrink-0" />,
+          title: 'text-amber-700'
+        };
       case 'error':
-        return 'border-destructive bg-destructive/5';
+        return {
+          border: 'border-red-300 bg-red-50',
+          icon: <XCircle className="h-5 w-5 text-red-500 mr-2 flex-shrink-0" />,
+          title: 'text-red-700'
+        };
       default:
-        return 'border-muted bg-muted/5';
+        return {
+          border: 'border-gray-300 bg-gray-50',
+          icon: null,
+          title: 'text-foreground'
+        };
     }
   };
 
@@ -51,36 +68,46 @@ export default function Recommendations({ result }: RecommendationsProps) {
           <CollapsibleContent>
             <div className="space-y-4">
               {result.recommendations.length > 0 ? (
-                result.recommendations.map((rec, index) => (
-                  <div 
-                    key={index} 
-                    className={`p-3 border-l-4 rounded-r ${getBorderColor(rec.status)}`}
-                  >
-                    <h3 className="font-medium">{rec.title}</h3>
-                    <p className="text-foreground/80 text-sm">
-                      {rec.description}
-                    </p>
-                    {rec.exampleCode && (
-                      <div className="mt-2">
-                        <Accordion type="single" collapsible>
-                          <AccordionItem value={`code-example-${index}`} className="border-0">
-                            <AccordionTrigger className="text-primary py-1 text-sm hover:no-underline">
-                              See example code
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-x-auto">
-                                <code>{rec.exampleCode}</code>
-                              </pre>
-                            </AccordionContent>
-                          </AccordionItem>
-                        </Accordion>
+                result.recommendations.map((rec, index) => {
+                  const styles = getRecommendationStyles(rec.status);
+                  
+                  return (
+                    <div 
+                      key={index} 
+                      className={`p-4 border rounded-md shadow-sm ${styles.border}`}
+                    >
+                      <div className="flex items-start">
+                        {styles.icon}
+                        <div>
+                          <h3 className={`font-semibold ${styles.title}`}>{rec.title}</h3>
+                          <p className="text-foreground/80 text-sm mt-1">
+                            {rec.description}
+                          </p>
+                          {rec.exampleCode && (
+                            <div className="mt-2">
+                              <Accordion type="single" collapsible>
+                                <AccordionItem value={`code-example-${index}`} className="border-0">
+                                  <AccordionTrigger className="text-primary py-1 text-sm hover:no-underline">
+                                    See example code
+                                  </AccordionTrigger>
+                                  <AccordionContent>
+                                    <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-x-auto">
+                                      <code>{rec.exampleCode}</code>
+                                    </pre>
+                                  </AccordionContent>
+                                </AccordionItem>
+                              </Accordion>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                  </div>
-                ))
+                    </div>
+                  );
+                })
               ) : (
-                <div className="p-4 text-center text-foreground/60">
-                  No recommendations needed. Your SEO implementation is good!
+                <div className="p-6 text-center border rounded-md border-green-200 bg-green-50">
+                  <CheckCircle className="h-8 w-8 text-green-500 mx-auto mb-2" />
+                  <div className="text-green-700 font-medium">No recommendations needed. Your SEO implementation is good!</div>
                 </div>
               )}
             </div>
