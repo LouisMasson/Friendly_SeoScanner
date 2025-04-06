@@ -5,6 +5,7 @@ import { SEOAnalyzerService } from "@/services/seo-analyzer";
 import { useToast } from "@/hooks/use-toast";
 import URLInput from "@/components/url-input";
 import ResultSummary from "@/components/result-summary";
+import CategorySummary from "@/components/category-summary";
 import GooglePreview from "@/components/google-preview";
 import SocialPreview from "@/components/social-preview";
 import SEOTagsAnalysis from "@/components/seo-tags-analysis";
@@ -59,6 +60,7 @@ export default function Home() {
         {analysisResult && (
           <div>
             <ResultSummary result={analysisResult} />
+            <CategorySummary result={analysisResult} />
             <GooglePreview result={analysisResult} />
             <SocialPreview result={analysisResult} />
             <SEOTagsAnalysis result={analysisResult} />
