@@ -72,7 +72,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="bg-white border-t border-muted/60 py-4">
         <div className="container mx-auto px-4 text-center text-muted-foreground text-sm">
-          <p>SEO Meta Tag Analyzer &copy; {new Date().getFullYear()} | Designed for analyzing website SEO tags.</p>
+          <p>SEO Meta Tag Analyzer &copy; {new Date().getFullYear()} | Made by Louis with ❤️ and Replit</p>
         </div>
       </footer>
     </div>
