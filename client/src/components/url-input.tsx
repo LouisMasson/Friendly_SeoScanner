@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { isValidUrl } from "@/lib/utils";
+import { isValidUrl, ensureHttpProtocol } from "@/lib/utils";
 
 interface URLInputProps {
   onAnalyze: (url: string) => void;
@@ -28,10 +28,7 @@ export default function URLInput({ onAnalyze, isLoading }: URLInputProps) {
     }
     
     // Add https:// prefix if not present
-    let formattedUrl = url.trim();
-    if (!/^https?:\/\//i.test(formattedUrl)) {
-      formattedUrl = `https://${formattedUrl}`;
-    }
+    let formattedUrl = ensureHttpProtocol(url.trim());
     
     if (!isValidUrl(formattedUrl)) {
       toast({
@@ -57,12 +54,15 @@ export default function URLInput({ onAnalyze, isLoading }: URLInputProps) {
           <div className="flex-grow w-full">
             <Input
               type="text"
-              placeholder="https://example.com"
+              placeholder="example.com or https://example.com"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               className="w-full"
               disabled={isLoading}
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              You can enter a URL with or without http/https - we'll handle it for you.
+            </p>
           </div>
           <Button 
             type="submit" 

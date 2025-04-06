@@ -34,12 +34,29 @@ export function getStatusColor(status: SEOStatusType): string {
 }
 
 export function isValidUrl(url: string): boolean {
+  // Try with the original URL
   try {
     new URL(url);
     return true;
   } catch {
-    return false;
+    // If that fails, try prepending https:// and check again
+    try {
+      new URL(`https://${url}`);
+      return true;
+    } catch {
+      return false;
+    }
   }
+}
+
+export function ensureHttpProtocol(url: string): string {
+  // If the URL already starts with http:// or https://, return it as is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  
+  // Otherwise, prepend https:// (preferred protocol)
+  return `https://${url}`;
 }
 
 export function getFaviconUrl(url: string): string {
