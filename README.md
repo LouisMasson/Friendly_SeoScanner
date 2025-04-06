@@ -2,6 +2,12 @@
 
 A powerful SEO analysis tool that provides instant Google and social media previews with an intuitive, Notion-inspired interface.
 
+## 🔗 Demo
+
+Check out the live demo: [SEO Meta Tag Analyzer](https://seo-scanner-interactive.replit.app/)
+
+![SEO Meta Tag Analyzer Screenshot](./attached_assets/screenshot-1743926373225.png)
+
 ## 🌟 Features
 
 - **Instant Website Analysis**: Analyze any website's SEO metrics with a single URL input
