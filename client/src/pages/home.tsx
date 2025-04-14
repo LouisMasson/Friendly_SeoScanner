@@ -68,6 +68,7 @@ export default function Home() {
             <CategorySummary result={analysisResult} />
             <GooglePreview result={analysisResult} />
             <SocialPreview result={analysisResult} />
+            <MobileFriendliness result={analysisResult} />
             <SEOTagsAnalysis result={analysisResult} />
             <Recommendations result={analysisResult} />
           </div>

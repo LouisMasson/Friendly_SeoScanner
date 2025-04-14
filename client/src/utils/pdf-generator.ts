@@ -145,6 +145,65 @@ export function generateSEOReport(result: AnalysisResult): jsPDF {
   
   currentY += (wrappedTwitterFeedback.length * 7) + 10;
   
+  // Mobile-Friendliness Section
+  doc.setFontSize(14);
+  doc.setTextColor(30, 30, 30);
+  doc.text("Mobile-Friendliness Analysis", margin, currentY);
+  
+  currentY += 10;
+  
+  // Mobile-Friendliness Score
+  doc.setFontSize(12);
+  doc.setTextColor(50, 50, 50);
+  doc.text("Mobile Score:", margin, currentY);
+  
+  const mobileStatusColor = getStatusColorHex(result.mobileFriendliness.status);
+  doc.setTextColor(hexToRgb(mobileStatusColor).r, hexToRgb(mobileStatusColor).g, hexToRgb(mobileStatusColor).b);
+  doc.text(`${result.mobileFriendliness.score}/100 (${capitalizeFirstLetter(result.mobileFriendliness.status)})`, margin + 25, currentY);
+  
+  currentY += 7;
+  
+  doc.setTextColor(50, 50, 50);
+  doc.text("Feedback:", margin, currentY);
+  
+  const mobileFeedback = result.mobileFriendliness.feedback;
+  const wrappedMobileFeedback = doc.splitTextToSize(mobileFeedback, contentWidth - 30);
+  doc.text(wrappedMobileFeedback, margin + 25, currentY);
+  
+  currentY += (wrappedMobileFeedback.length * 7) + 5;
+  
+  // Mobile-Friendliness Key Factors
+  doc.setFontSize(11);
+  doc.setTextColor(50, 50, 50);
+  
+  // Viewport
+  doc.text("Viewport Meta Tag:", margin, currentY);
+  doc.setTextColor(result.mobileFriendliness.viewport ? 34, 197, 94 : 239, 68, 68);
+  doc.text(result.mobileFriendliness.viewport ? "Present" : "Missing", margin + 50, currentY);
+  currentY += 7;
+  
+  // Responsive Design
+  doc.setTextColor(50, 50, 50);
+  doc.text("Responsive Design:", margin, currentY);
+  doc.setTextColor(result.mobileFriendliness.responsiveDesign ? 34, 197, 94 : 239, 68, 68);
+  doc.text(result.mobileFriendliness.responsiveDesign ? "Detected" : "Not detected", margin + 50, currentY);
+  currentY += 7;
+  
+  // Touch Elements
+  doc.setTextColor(50, 50, 50);
+  doc.text("Touch Optimization:", margin, currentY);
+  doc.setTextColor(result.mobileFriendliness.touchElements ? 34, 197, 94 : 239, 68, 68);
+  doc.text(result.mobileFriendliness.touchElements ? "Optimized" : "Needs improvement", margin + 50, currentY);
+  currentY += 7;
+  
+  // Font Readability
+  doc.setTextColor(50, 50, 50);
+  doc.text("Font Readability:", margin, currentY);
+  doc.setTextColor(result.mobileFriendliness.fontReadability ? 34, 197, 94 : 239, 68, 68);
+  doc.text(result.mobileFriendliness.fontReadability ? "Good" : "Needs improvement", margin + 50, currentY);
+  
+  currentY += 10;
+  
   // Top Recommendations
   doc.setFontSize(14);
   doc.setTextColor(30, 30, 30);

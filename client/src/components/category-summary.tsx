@@ -9,7 +9,7 @@ import {
   TabsTrigger 
 } from "@/components/ui/tabs";
 import { AnalysisResult, SEOStatusType } from "@/lib/types";
-import { CheckCircle2, AlertCircle, XCircle, BookOpenText, Share2, Search } from "lucide-react";
+import { CheckCircle2, AlertCircle, XCircle, BookOpenText, Share2, Search, Smartphone } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface CategorySummaryProps {
@@ -58,9 +58,13 @@ export default function CategorySummary({ result }: CategorySummaryProps) {
   
   const metaTagsScore = calculateMetaTagsScore();
   
+  // Use the mobile-friendliness score directly
+  const mobileScore = result.mobileFriendliness?.score || 0;
+  
   const basicSEOStatus = getStatusFromScore(basicSEOScore);
   const socialStatus = getStatusFromScore(socialScore);
   const metaTagsStatus = getStatusFromScore(metaTagsScore);
+  const mobileStatus = result.mobileFriendliness?.status || "error";
   
   // Get icon for category
   const getStatusIcon = (status: SEOStatusType) => {
@@ -80,7 +84,7 @@ export default function CategorySummary({ result }: CategorySummaryProps) {
         <h2 className="text-lg font-medium mb-4">SEO Performance Overview</h2>
         
         <Tabs defaultValue="basic" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="basic" className="flex items-center gap-2">
               <Search className="h-4 w-4" />
               <span className="hidden sm:inline">Basic SEO</span>
@@ -88,6 +92,10 @@ export default function CategorySummary({ result }: CategorySummaryProps) {
             <TabsTrigger value="social" className="flex items-center gap-2">
               <Share2 className="h-4 w-4" />
               <span className="hidden sm:inline">Social Media</span>
+            </TabsTrigger>
+            <TabsTrigger value="mobile" className="flex items-center gap-2">
+              <Smartphone className="h-4 w-4" />
+              <span className="hidden sm:inline">Mobile</span>
             </TabsTrigger>
             <TabsTrigger value="meta" className="flex items-center gap-2">
               <BookOpenText className="h-4 w-4" />
@@ -156,6 +164,55 @@ export default function CategorySummary({ result }: CategorySummaryProps) {
                       <p className="text-sm">{result.twitterTags.feedback}</p>
                     </div>
                   </div>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="mobile" className="mt-0">
+              <div className="p-4 border rounded-md">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    {getStatusIcon(mobileStatus)}
+                    <h3 className="font-medium">Mobile-Friendliness</h3>
+                  </div>
+                  <div className="font-bold text-lg">{mobileScore}%</div>
+                </div>
+                
+                <Progress value={mobileScore} className="h-2 mb-4" 
+                  indicatorClassName={mobileStatus === 'good' ? 'bg-green-500' : mobileStatus === 'warning' ? 'bg-amber-500' : 'bg-red-500'} />
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex items-start gap-2 p-3 bg-muted/30 rounded-md">
+                    <div>{getStatusIcon(result.mobileFriendliness?.viewport ? "good" : "error")}</div>
+                    <div>
+                      <h4 className="font-medium">Viewport Meta Tag</h4>
+                      <p className="text-sm">
+                        {result.mobileFriendliness?.viewport 
+                          ? "Properly configured for mobile devices" 
+                          : "Missing viewport meta tag"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2 p-3 bg-muted/30 rounded-md">
+                    <div>{getStatusIcon(result.mobileFriendliness?.responsiveDesign ? "good" : "warning")}</div>
+                    <div>
+                      <h4 className="font-medium">Responsive Design</h4>
+                      <p className="text-sm">
+                        {result.mobileFriendliness?.responsiveDesign 
+                          ? "Uses responsive design techniques" 
+                          : "Limited responsive design elements"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-3 p-3 bg-muted/30 rounded-md">
+                  <p className="text-sm font-medium mb-1">
+                    Google primarily uses the mobile version of sites for indexing and ranking
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {result.mobileFriendliness?.feedback || "Mobile-friendliness is an important ranking factor."}
+                  </p>
                 </div>
               </div>
             </TabsContent>
