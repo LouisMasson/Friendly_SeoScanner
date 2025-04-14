@@ -56,37 +56,37 @@ export function generateSEOReport(result: AnalysisResult): jsPDF {
   doc.setFontSize(12);
   doc.setTextColor(50, 50, 50);
   doc.text("Title:", margin, 95);
-  doc.text(truncateString(result.titleTag.content || "Not found", 70), margin + 15, 95);
+  doc.text(truncateString(result.titleTag.content || "Not found", 70), margin + 25, 95);
   
   doc.text("Status:", margin, 102);
   const titleStatusColor = getStatusColorHex(result.titleTag.status);
   doc.setTextColor(hexToRgb(titleStatusColor).r, hexToRgb(titleStatusColor).g, hexToRgb(titleStatusColor).b);
-  doc.text(capitalizeFirstLetter(result.titleTag.status), margin + 15, 102);
+  doc.text(capitalizeFirstLetter(result.titleTag.status), margin + 25, 102);
   
   doc.setTextColor(50, 50, 50);
   doc.text("Feedback:", margin, 109);
   
   // Wrap feedback text
   const titleFeedback = result.titleTag.feedback;
-  const wrappedTitleFeedback = doc.splitTextToSize(titleFeedback, contentWidth - 15);
-  doc.text(wrappedTitleFeedback, margin + 15, 109);
+  const wrappedTitleFeedback = doc.splitTextToSize(titleFeedback, contentWidth - 30);
+  doc.text(wrappedTitleFeedback, margin + 25, 109);
 
-  // Description
-  let currentY = 109 + (wrappedTitleFeedback.length * 7);
+  // Description - add more spacing
+  let currentY = 109 + (wrappedTitleFeedback.length * 7) + 5;
   
   doc.setTextColor(50, 50, 50);
   doc.text("Description:", margin, currentY);
   
   const description = truncateString(result.descriptionTag.content || "Not found", 100);
-  const wrappedDescription = doc.splitTextToSize(description, contentWidth - 15);
-  doc.text(wrappedDescription, margin + 15, currentY);
+  const wrappedDescription = doc.splitTextToSize(description, contentWidth - 30);
+  doc.text(wrappedDescription, margin + 25, currentY);
   
-  currentY += (wrappedDescription.length * 7);
+  currentY += (wrappedDescription.length * 7) + 5;
   
   doc.text("Status:", margin, currentY);
   const descStatusColor = getStatusColorHex(result.descriptionTag.status);
   doc.setTextColor(hexToRgb(descStatusColor).r, hexToRgb(descStatusColor).g, hexToRgb(descStatusColor).b);
-  doc.text(capitalizeFirstLetter(result.descriptionTag.status), margin + 15, currentY);
+  doc.text(capitalizeFirstLetter(result.descriptionTag.status), margin + 25, currentY);
   
   currentY += 7;
   
@@ -94,8 +94,8 @@ export function generateSEOReport(result: AnalysisResult): jsPDF {
   doc.text("Feedback:", margin, currentY);
   
   const descFeedback = result.descriptionTag.feedback;
-  const wrappedDescFeedback = doc.splitTextToSize(descFeedback, contentWidth - 15);
-  doc.text(wrappedDescFeedback, margin + 15, currentY);
+  const wrappedDescFeedback = doc.splitTextToSize(descFeedback, contentWidth - 30);
+  doc.text(wrappedDescFeedback, margin + 25, currentY);
   
   currentY += (wrappedDescFeedback.length * 7) + 5;
   
@@ -113,7 +113,7 @@ export function generateSEOReport(result: AnalysisResult): jsPDF {
   
   const ogStatusColor = getStatusColorHex(result.ogTags.status);
   doc.setTextColor(hexToRgb(ogStatusColor).r, hexToRgb(ogStatusColor).g, hexToRgb(ogStatusColor).b);
-  doc.text(capitalizeFirstLetter(result.ogTags.status), margin + 22, currentY);
+  doc.text(capitalizeFirstLetter(result.ogTags.status), margin + 25, currentY);
   
   currentY += 7;
   
@@ -121,8 +121,8 @@ export function generateSEOReport(result: AnalysisResult): jsPDF {
   doc.text("Feedback:", margin, currentY);
   
   const ogFeedback = result.ogTags.feedback;
-  const wrappedOgFeedback = doc.splitTextToSize(ogFeedback, contentWidth - 15);
-  doc.text(wrappedOgFeedback, margin + 15, currentY);
+  const wrappedOgFeedback = doc.splitTextToSize(ogFeedback, contentWidth - 30);
+  doc.text(wrappedOgFeedback, margin + 25, currentY);
   
   currentY += (wrappedOgFeedback.length * 7) + 5;
   
@@ -132,7 +132,7 @@ export function generateSEOReport(result: AnalysisResult): jsPDF {
   
   const twitterStatusColor = getStatusColorHex(result.twitterTags.status);
   doc.setTextColor(hexToRgb(twitterStatusColor).r, hexToRgb(twitterStatusColor).g, hexToRgb(twitterStatusColor).b);
-  doc.text(capitalizeFirstLetter(result.twitterTags.status), margin + 22, currentY);
+  doc.text(capitalizeFirstLetter(result.twitterTags.status), margin + 25, currentY);
   
   currentY += 7;
   
@@ -140,8 +140,8 @@ export function generateSEOReport(result: AnalysisResult): jsPDF {
   doc.text("Feedback:", margin, currentY);
   
   const twitterFeedback = result.twitterTags.feedback;
-  const wrappedTwitterFeedback = doc.splitTextToSize(twitterFeedback, contentWidth - 15);
-  doc.text(wrappedTwitterFeedback, margin + 15, currentY);
+  const wrappedTwitterFeedback = doc.splitTextToSize(twitterFeedback, contentWidth - 30);
+  doc.text(wrappedTwitterFeedback, margin + 25, currentY);
   
   currentY += (wrappedTwitterFeedback.length * 7) + 10;
   
@@ -165,12 +165,12 @@ export function generateSEOReport(result: AnalysisResult): jsPDF {
       
       currentY += 7;
       
-      const recDesc = doc.splitTextToSize(rec.description, contentWidth - 5);
+      const recDesc = doc.splitTextToSize(rec.description, contentWidth - 15);
       doc.setTextColor(80, 80, 80);
       doc.setFontSize(10);
-      doc.text(recDesc, margin, currentY);
+      doc.text(recDesc, margin + 5, currentY);
       
-      currentY += (recDesc.length * 6) + 5;
+      currentY += (recDesc.length * 6) + 8;
     });
   } else {
     doc.setFontSize(12);
