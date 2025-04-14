@@ -205,6 +205,95 @@ async function analyzeSEO(url: string, html: string): Promise<SEOAnalysis> {
     recommendation: viewport ? "No change needed" : "Add viewport meta tag for mobile responsiveness"
   });
   
+  // Mobile-friendliness analysis
+  const hasViewport = Boolean(viewport);
+  
+  // Check for media queries (indicator of responsive design)
+  const styleElements = $('style').toArray();
+  const stylesheets = $('link[rel="stylesheet"]').toArray();
+  
+  // Check if there are any media queries in style elements
+  let mediaQueryCount = 0;
+  styleElements.forEach(element => {
+    const styleContent = $(element).html() || '';
+    if (styleContent.includes('@media')) {
+      mediaQueryCount++;
+    }
+  });
+  
+  const hasMediaQueries = mediaQueryCount > 0;
+  
+  // Check for touch-friendly elements (minimum suggested size)
+  // Look for CSS that suggests touch optimization
+  let hasTouchElements = false;
+  styleElements.forEach(element => {
+    const styleContent = $(element).html() || '';
+    if (
+      styleContent.includes('min-height') || 
+      styleContent.includes('min-width') || 
+      styleContent.includes('touch-action') ||
+      styleContent.includes('user-select')
+    ) {
+      hasTouchElements = true;
+    }
+  });
+  
+  // Check for font readability (relative units)
+  let hasFontReadability = false;
+  styleElements.forEach(element => {
+    const styleContent = $(element).html() || '';
+    if (
+      styleContent.includes('em') || 
+      styleContent.includes('rem') || 
+      styleContent.includes('vh') || 
+      styleContent.includes('vw')
+    ) {
+      hasFontReadability = true;
+    }
+  });
+  
+  // Check for indicators of responsive design
+  const hasFlexbox = $('*').toArray().some(el => {
+    const style = $(el).attr('style') || '';
+    return style.includes('flex') || style.includes('display: flex');
+  });
+  
+  const hasGrid = $('*').toArray().some(el => {
+    const style = $(el).attr('style') || '';
+    return style.includes('grid') || style.includes('display: grid');
+  });
+  
+  const hasResponsiveImage = $('img[srcset], picture source').length > 0;
+  
+  const hasResponsiveDesign = hasFlexbox || hasGrid || hasResponsiveImage || hasMediaQueries;
+  
+  // Calculate mobile friendliness score (out of 100)
+  let mobileScore = 0;
+  if (hasViewport) mobileScore += 40;
+  if (hasResponsiveDesign) mobileScore += 25;
+  if (hasTouchElements) mobileScore += 15;
+  if (hasFontReadability) mobileScore += 10;
+  if (hasMediaQueries) mobileScore += 10;
+  
+  let mobileStatus: "good" | "warning" | "error" = "error";
+  if (mobileScore >= 80) {
+    mobileStatus = "good";
+  } else if (mobileScore >= 50) {
+    mobileStatus = "warning";
+  }
+  
+  let mobileFeedback = "";
+  
+  if (mobileScore >= 90) {
+    mobileFeedback = "Excellent! Your website appears to be very mobile-friendly.";
+  } else if (mobileScore >= 80) {
+    mobileFeedback = "Good! Your website has most of the elements needed for mobile users.";
+  } else if (mobileScore >= 50) {
+    mobileFeedback = "Needs improvement. Your site has some mobile-friendly elements, but could be better optimized.";
+  } else {
+    mobileFeedback = "Major improvements needed. Your site doesn't appear to be optimized for mobile devices.";
+  }
+  
   // Generate recommendations
   const recommendations: Array<{
     title: string;
@@ -259,6 +348,69 @@ async function analyzeSEO(url: string, html: string): Promise<SEOAnalysis> {
     });
   }
   
+  // Mobile-friendliness recommendations
+  if (!hasViewport) {
+    recommendations.push({
+      title: "Add Viewport Meta Tag",
+      description: "The viewport meta tag is essential for responsive design. It ensures your website displays correctly on all devices.",
+      status: "error",
+      exampleCode: `<meta name="viewport" content="width=device-width, initial-scale=1.0">`
+    });
+  }
+  
+  if (!hasResponsiveDesign) {
+    recommendations.push({
+      title: "Implement Responsive Design",
+      description: "Your site doesn't appear to use responsive design techniques like flexbox, grid, or media queries. These are essential for mobile optimization.",
+      status: "warning",
+      exampleCode: `/* Use responsive units */
+.container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* Add media queries */
+@media (max-width: 768px) {
+  .column {
+    width: 100%;
+  }
+}`
+    });
+  }
+  
+  if (!hasTouchElements) {
+    recommendations.push({
+      title: "Optimize for Touch Devices",
+      description: "Ensure interactive elements are large enough for touch interactions. Use appropriate spacing for touch targets.",
+      status: "warning",
+      exampleCode: `/* Make buttons touch-friendly */
+.button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 12px 16px;
+  touch-action: manipulation;
+}`
+    });
+  }
+  
+  if (!hasFontReadability) {
+    recommendations.push({
+      title: "Improve Font Readability",
+      description: "Use relative font units like 'em' or 'rem' instead of fixed pixel sizes to ensure text scales properly on all devices.",
+      status: "warning",
+      exampleCode: `/* Use relative font units */
+body {
+  font-size: 16px; /* Base size */
+}
+h1 {
+  font-size: 2rem; /* Relative to root */
+}
+p {
+  font-size: 1em; /* Relative to parent */
+}`
+    });
+  }
+  
   // Count all meta tags
   const allMetaTags = $('meta').length;
   
@@ -274,6 +426,10 @@ async function analyzeSEO(url: string, html: string): Promise<SEOAnalysis> {
   if (twitterStatus === "error") score -= 15;
   if (!canonical) score -= 10;
   if (!viewport) score -= 10;
+  
+  // Include mobile-friendliness in the overall score
+  if (mobileScore < 50) score -= 15;
+  else if (mobileScore < 80) score -= 8;
   
   // Ensure score is between 0 and 100
   score = Math.max(0, Math.min(100, score));
@@ -314,6 +470,17 @@ async function analyzeSEO(url: string, html: string): Promise<SEOAnalysis> {
       image: twitterImage,
       status: twitterStatus,
       feedback: twitterFeedback
+    },
+    
+    mobileFriendliness: {
+      score: mobileScore,
+      status: mobileStatus,
+      viewport: hasViewport,
+      responsiveDesign: hasResponsiveDesign,
+      touchElements: hasTouchElements,
+      fontReadability: hasFontReadability,
+      mediaQueries: hasMediaQueries,
+      feedback: mobileFeedback
     },
     
     metaTags,

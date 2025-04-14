@@ -182,7 +182,7 @@ export function generateSEOReport(result: AnalysisResult): jsPDF {
   const footerY = doc.internal.pageSize.getHeight() - 10;
   doc.setFontSize(10);
   doc.setTextColor(150, 150, 150);
-  doc.text("SEO Meta Tag Analyzer | Generated with 💻", margin, footerY);
+  doc.text("SEO Meta Tag Analyzer | Generated with Replit and love", margin, footerY);
   
   // Return the document
   return doc;

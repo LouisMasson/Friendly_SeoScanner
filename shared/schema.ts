@@ -58,6 +58,18 @@ export const seoAnalysisSchema = z.object({
     feedback: z.string()
   }),
   
+  // Mobile-friendliness data
+  mobileFriendliness: z.object({
+    score: z.number(),
+    status: z.enum(["good", "warning", "error"]),
+    viewport: z.boolean(),
+    responsiveDesign: z.boolean(),
+    touchElements: z.boolean(),
+    fontReadability: z.boolean(),
+    mediaQueries: z.boolean(),
+    feedback: z.string()
+  }),
+  
   // All analyzed SEO tags
   metaTags: z.array(z.object({
     type: z.string(),
