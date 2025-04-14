@@ -8,10 +8,11 @@ export const SEOAnalyzerService = {
   /**
    * Analyze a website URL
    * @param url The URL to analyze
+   * @param force Whether to force a fresh analysis, bypassing cache
    * @returns Analysis result
    */
-  async analyzeUrl(url: string): Promise<AnalysisResult> {
-    const response = await apiRequest('POST', '/api/analyze', { url });
+  async analyzeUrl(url: string, force: boolean = true): Promise<AnalysisResult> {
+    const response = await apiRequest('POST', '/api/analyze', { url, force });
     return await response.json();
   },
 
