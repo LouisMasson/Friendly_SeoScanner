@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatUrl, getFaviconUrl } from "@/lib/utils";
 import { CheckCircle2, AlertCircle, XCircle, ExternalLink, Globe, Tag, BookOpen } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import ExportPDFButton from "@/components/export-pdf-button";
 
 interface ResultSummaryProps {
   result: AnalysisResult;
@@ -68,6 +69,12 @@ export default function ResultSummary({ result }: ResultSummaryProps) {
   return (
     <Card className="mb-6">
       <CardContent className="pt-5">
+        {/* Header with export button */}
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-medium">Analysis Results</h2>
+          <ExportPDFButton result={result} />
+        </div>
+        
         <div className="flex flex-col md:flex-row gap-6">
           {/* Score visualization - Left side */}
           <div className="flex-1">
