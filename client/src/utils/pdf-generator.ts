@@ -218,34 +218,81 @@ export function generateSEOReport(result: AnalysisResult): jsPDF {
   }
   doc.text(result.mobileFriendliness.fontReadability ? "Good" : "Needs improvement", margin + 50, currentY);
   
+  // Add a new page for recommendations
+  doc.addPage();
+  
+  // Reset currentY for the new page
+  currentY = 20;
+  
+  // Add page header
+  doc.setFontSize(16);
+  doc.setTextColor(20, 20, 20);
+  doc.text("SEO Recommendations", margin, currentY);
+  
   currentY += 10;
   
-  // Top Recommendations
-  doc.setFontSize(14);
-  doc.setTextColor(30, 30, 30);
-  doc.text("Top Recommendations", margin, currentY);
-  
-  currentY += 10;
-  
-  // Add some key recommendations (up to 3)
+  // Add some key recommendations (up to 5)
   const topRecommendations = result.recommendations
     .filter(rec => rec.status !== "good")
-    .slice(0, 3);
+    .slice(0, 5);
   
   if (topRecommendations.length > 0) {
     topRecommendations.forEach((rec, index) => {
+      currentY += 8; // Extra space between recommendations
+      
+      // Recommendation title with priority indicator
       doc.setFontSize(12);
       doc.setTextColor(50, 50, 50);
+      
+      // Set color based on status
+      const recStatusColor = getStatusColorHex(rec.status);
+      doc.setTextColor(hexToRgb(recStatusColor).r, hexToRgb(recStatusColor).g, hexToRgb(recStatusColor).b);
       doc.text(`${index + 1}. ${rec.title}`, margin, currentY);
       
       currentY += 7;
       
-      const recDesc = doc.splitTextToSize(rec.description, contentWidth - 15);
+      // Description
       doc.setTextColor(80, 80, 80);
       doc.setFontSize(10);
-      doc.text(recDesc, margin + 5, currentY);
+      const recDesc = doc.splitTextToSize(rec.description, contentWidth - 10);
+      doc.text(recDesc, margin, currentY);
       
-      currentY += (recDesc.length * 6) + 8;
+      currentY += (recDesc.length * 6) + 5;
+      
+      // Example code (if available)
+      if (rec.exampleCode) {
+        doc.setTextColor(100, 100, 100);
+        doc.setFontSize(9);
+        doc.text("Example:", margin, currentY);
+        
+        currentY += 5;
+        
+        // Prepare code text and calculate height
+        const codeLines = doc.splitTextToSize(rec.exampleCode, contentWidth - 20);
+        const codeHeight = codeLines.length * 5 + 10; // More padding for readability
+        
+        // Draw code background with rounded corners
+        doc.setFillColor(246, 248, 250); // Light gray background
+        doc.roundedRect(margin - 2, currentY - 3, contentWidth - margin + 7, codeHeight, 3, 3, 'F');
+        
+        // Add a subtle border
+        doc.setDrawColor(230, 232, 234); // Light border
+        doc.roundedRect(margin - 2, currentY - 3, contentWidth - margin + 7, codeHeight, 3, 3, 'S');
+        
+        // Draw code text
+        doc.setTextColor(70, 70, 70); // Darker text for better readability
+        doc.text(codeLines, margin + 2, currentY + 2); // Add internal padding
+        
+        currentY += codeHeight + 8; // More spacing after code block
+      } else {
+        currentY += 5;
+      }
+      
+      // Add a separator line
+      if (index < topRecommendations.length - 1) {
+        doc.setDrawColor(230, 230, 230);
+        doc.line(margin, currentY - 2, pageWidth - margin, currentY - 2);
+      }
     });
   } else {
     doc.setFontSize(12);
@@ -253,11 +300,18 @@ export function generateSEOReport(result: AnalysisResult): jsPDF {
     doc.text("No critical recommendations found. Great job!", margin, currentY);
   }
   
-  // Add footer
-  const footerY = doc.internal.pageSize.getHeight() - 10;
-  doc.setFontSize(10);
-  doc.setTextColor(150, 150, 150);
-  doc.text("SEO Meta Tag Analyzer | Generated with Replit and love", margin, footerY);
+  // Add footer to all pages
+  const totalPages = doc.getNumberOfPages();
+  for (let i = 1; i <= totalPages; i++) {
+    doc.setPage(i);
+    const footerY = doc.internal.pageSize.getHeight() - 10;
+    doc.setFontSize(10);
+    doc.setTextColor(150, 150, 150);
+    doc.text("SEO Meta Tag Analyzer | Generated with Replit and love", margin, footerY);
+    
+    // Add page numbers
+    doc.text(`Page ${i} of ${totalPages}`, pageWidth - margin - 25, footerY);
+  }
   
   // Return the document
   return doc;
