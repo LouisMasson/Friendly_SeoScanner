@@ -3,6 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { AnalysisResult } from "@/lib/types";
 import { SEOAnalyzerService } from "@/services/seo-analyzer";
 import { useToast } from "@/hooks/use-toast";
+import { queryClient } from "@/lib/queryClient";
 import URLInput from "@/components/url-input";
 import ResultSummary from "@/components/result-summary";
 import CategorySummary from "@/components/category-summary";
@@ -35,6 +36,9 @@ export default function Home() {
   });
   
   const handleAnalyze = (url: string) => {
+    // Invalidate all queries to ensure we're always getting fresh data
+    queryClient.invalidateQueries({ queryKey: ['/api/analyze'] });
+    queryClient.invalidateQueries({ queryKey: ['/api/recent'] });
     analyzeUrlMutation.mutate(url);
   };
 

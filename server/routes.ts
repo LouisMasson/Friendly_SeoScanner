@@ -11,14 +11,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/analyze", async (req: Request, res: Response) => {
     try {
       // Validate request body
-      const { url } = z.object({
-        url: z.string().url()
+      const { url, force = false } = z.object({
+        url: z.string().url(),
+        force: z.boolean().optional().default(false)
       }).parse(req.body);
       
       // Check if we already have an analysis for this URL
-      const existingAnalysis = await storage.getAnalysisByUrl(url);
-      if (existingAnalysis) {
-        return res.json(existingAnalysis);
+      // Only use cached result if force=false
+      if (!force) {
+        const existingAnalysis = await storage.getAnalysisByUrl(url);
+        if (existingAnalysis) {
+          return res.json(existingAnalysis);
+        }
       }
       
       // Fetch the HTML content
