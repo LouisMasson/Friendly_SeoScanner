@@ -178,28 +178,44 @@ export function generateSEOReport(result: AnalysisResult): jsPDF {
   
   // Viewport
   doc.text("Viewport Meta Tag:", margin, currentY);
-  doc.setTextColor(result.mobileFriendliness.viewport ? 34, 197, 94 : 239, 68, 68);
+  if (result.mobileFriendliness.viewport) {
+    doc.setTextColor(34, 197, 94); // Green
+  } else {
+    doc.setTextColor(239, 68, 68); // Red
+  }
   doc.text(result.mobileFriendliness.viewport ? "Present" : "Missing", margin + 50, currentY);
   currentY += 7;
   
   // Responsive Design
   doc.setTextColor(50, 50, 50);
   doc.text("Responsive Design:", margin, currentY);
-  doc.setTextColor(result.mobileFriendliness.responsiveDesign ? 34, 197, 94 : 239, 68, 68);
+  if (result.mobileFriendliness.responsiveDesign) {
+    doc.setTextColor(34, 197, 94); // Green
+  } else {
+    doc.setTextColor(239, 68, 68); // Red
+  }
   doc.text(result.mobileFriendliness.responsiveDesign ? "Detected" : "Not detected", margin + 50, currentY);
   currentY += 7;
   
   // Touch Elements
   doc.setTextColor(50, 50, 50);
   doc.text("Touch Optimization:", margin, currentY);
-  doc.setTextColor(result.mobileFriendliness.touchElements ? 34, 197, 94 : 239, 68, 68);
+  if (result.mobileFriendliness.touchElements) {
+    doc.setTextColor(34, 197, 94); // Green
+  } else {
+    doc.setTextColor(239, 68, 68); // Red
+  }
   doc.text(result.mobileFriendliness.touchElements ? "Optimized" : "Needs improvement", margin + 50, currentY);
   currentY += 7;
   
   // Font Readability
   doc.setTextColor(50, 50, 50);
   doc.text("Font Readability:", margin, currentY);
-  doc.setTextColor(result.mobileFriendliness.fontReadability ? 34, 197, 94 : 239, 68, 68);
+  if (result.mobileFriendliness.fontReadability) {
+    doc.setTextColor(34, 197, 94); // Green
+  } else {
+    doc.setTextColor(239, 68, 68); // Red
+  }
   doc.text(result.mobileFriendliness.fontReadability ? "Good" : "Needs improvement", margin + 50, currentY);
   
   currentY += 10;
