@@ -1,1 +1,4 @@
-{"success":false,"error":"Icon search-engine-optimization not found","code":"ICON_NAME_NOT_FOUND"}
+
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="50">🔍</text>
+</svg>
