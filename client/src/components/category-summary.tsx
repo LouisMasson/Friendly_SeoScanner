@@ -9,7 +9,7 @@ import {
   TabsTrigger 
 } from "@/components/ui/tabs";
 import { AnalysisResult, SEOStatusType } from "@/lib/types";
-import { CheckCircle2, AlertCircle, XCircle, BookOpenText, Share2, Search, Smartphone } from "lucide-react";
+import { CheckCircle2, AlertCircle, XCircle, BookOpenText, Share2, Search, Smartphone, Zap } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 interface CategorySummaryProps {
@@ -61,10 +61,22 @@ export default function CategorySummary({ result }: CategorySummaryProps) {
   // Use the mobile-friendliness score directly
   const mobileScore = result.mobileFriendliness?.score || 0;
   
+  // Calculate page speed score (100 is best, 0 is worst)
+  const calculatePageSpeedScore = (): number => {
+    // Convert load time to a score (1s is 100%, 5s is 0%)
+    const loadTimeMs = result.pageSpeed?.loadTime || 0;
+    if (loadTimeMs <= 1000) return 100;
+    if (loadTimeMs >= 5000) return 0;
+    return Math.round(100 - ((loadTimeMs - 1000) / 4000) * 100);
+  };
+  
+  const pageSpeedScore = calculatePageSpeedScore();
+  
   const basicSEOStatus = getStatusFromScore(basicSEOScore);
   const socialStatus = getStatusFromScore(socialScore);
   const metaTagsStatus = getStatusFromScore(metaTagsScore);
   const mobileStatus = result.mobileFriendliness?.status || "error";
+  const pageSpeedStatus = result.pageSpeed?.status || "error";
   
   // Get icon for category
   const getStatusIcon = (status: SEOStatusType) => {
@@ -84,7 +96,7 @@ export default function CategorySummary({ result }: CategorySummaryProps) {
         <h2 className="text-lg font-medium mb-4">SEO Performance Overview</h2>
         
         <Tabs defaultValue="basic" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="basic" className="flex items-center gap-2">
               <Search className="h-4 w-4" />
               <span className="hidden sm:inline">Basic SEO</span>
@@ -96,6 +108,10 @@ export default function CategorySummary({ result }: CategorySummaryProps) {
             <TabsTrigger value="mobile" className="flex items-center gap-2">
               <Smartphone className="h-4 w-4" />
               <span className="hidden sm:inline">Mobile</span>
+            </TabsTrigger>
+            <TabsTrigger value="speed" className="flex items-center gap-2">
+              <Zap className="h-4 w-4" />
+              <span className="hidden sm:inline">Page Speed</span>
             </TabsTrigger>
             <TabsTrigger value="meta" className="flex items-center gap-2">
               <BookOpenText className="h-4 w-4" />
@@ -212,6 +228,61 @@ export default function CategorySummary({ result }: CategorySummaryProps) {
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {result.mobileFriendliness?.feedback || "Mobile-friendliness is an important ranking factor."}
+                  </p>
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="speed" className="mt-0">
+              <div className="p-4 border rounded-md">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    {getStatusIcon(pageSpeedStatus)}
+                    <h3 className="font-medium">Page Speed Performance</h3>
+                  </div>
+                  <div className="font-bold text-lg">{pageSpeedScore}%</div>
+                </div>
+                
+                <Progress value={pageSpeedScore} className="h-2 mb-4" 
+                  indicatorClassName={pageSpeedStatus === 'good' ? 'bg-green-500' : pageSpeedStatus === 'warning' ? 'bg-amber-500' : 'bg-red-500'} />
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex items-start gap-2 p-3 bg-muted/30 rounded-md">
+                    <div>{getStatusIcon(pageSpeedStatus)}</div>
+                    <div>
+                      <h4 className="font-medium">Load Time</h4>
+                      <p className="text-sm">
+                        {result.pageSpeed?.loadTime < 1000 
+                          ? `Fast: ${result.pageSpeed?.loadTime}ms` 
+                          : result.pageSpeed?.loadTime < 3000 
+                            ? `Average: ${(result.pageSpeed?.loadTime / 1000).toFixed(2)}s` 
+                            : `Slow: ${(result.pageSpeed?.loadTime / 1000).toFixed(2)}s`}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-2 p-3 bg-muted/30 rounded-md">
+                    <div>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="text-blue-500"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Page Size</h4>
+                      <p className="text-sm">
+                        {result.pageSpeed?.resourceSize ? 
+                          (result.pageSpeed.resourceSize < 1024 
+                            ? `${Math.round(result.pageSpeed.resourceSize)} KB` 
+                            : `${(result.pageSpeed.resourceSize / 1024).toFixed(2)} MB`) 
+                          : "Unknown"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="mt-3 p-3 bg-muted/30 rounded-md">
+                  <p className="text-sm font-medium mb-1">
+                    Page speed is a critical ranking factor for Google
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {result.pageSpeed?.feedback || "Fast loading pages provide better user experience and can improve search rankings."}
                   </p>
                 </div>
               </div>

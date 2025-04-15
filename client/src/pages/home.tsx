@@ -12,6 +12,7 @@ import SocialPreview from "@/components/social-preview";
 import SEOTagsAnalysis from "@/components/seo-tags-analysis";
 import Recommendations from "@/components/recommendations";
 import MobileFriendliness from "@/components/mobile-friendliness";
+import PageSpeed from "@/components/page-speed";
 import { Search } from "lucide-react";
 
 export default function Home() {
@@ -66,6 +67,7 @@ export default function Home() {
           <div>
             <ResultSummary result={analysisResult} />
             <CategorySummary result={analysisResult} />
+            <PageSpeed result={analysisResult} />
             <GooglePreview result={analysisResult} />
             <SocialPreview result={analysisResult} />
             <MobileFriendliness result={analysisResult} />

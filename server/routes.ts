@@ -455,6 +455,43 @@ p {
   // Ensure score is between 0 and 100
   score = Math.max(0, Math.min(100, score));
   
+  // Analyze page speed data
+  let pageSpeedStatus: "good" | "warning" | "error" = "good";
+  let pageSpeedFeedback = "Your page loads quickly and efficiently.";
+  
+  // Default values if pageSpeedData is not provided
+  const loadTime = pageSpeedData?.loadTime || 0;
+  const resourceSize = pageSpeedData?.resourceSize || 0;
+  const requestCount = pageSpeedData?.requestCount || 1;
+  
+  // Evaluate page speed status based on load time
+  if (loadTime > 3000) { // More than 3 seconds is slow
+    pageSpeedStatus = "error";
+    pageSpeedFeedback = "Page load time is slow. Consider optimizing resources.";
+  } else if (loadTime > 1500) { // Between 1.5 and 3 seconds is medium
+    pageSpeedStatus = "warning";
+    pageSpeedFeedback = "Page load time is acceptable but could be improved.";
+  }
+  
+  // Add page speed recommendation if needed
+  if (pageSpeedStatus !== "good") {
+    recommendations.push({
+      title: "Improve Page Speed",
+      description: "Fast loading times are crucial for user experience and SEO. Consider optimizing images, minifying CSS/JS, and using browser caching.",
+      status: pageSpeedStatus,
+      exampleCode: `<!-- Enable browser caching -->
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpg "access plus 1 year"
+  ExpiresByType image/jpeg "access plus 1 year"
+  ExpiresByType image/gif "access plus 1 year"
+  ExpiresByType image/png "access plus 1 year"
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+</IfModule>`
+    });
+  }
+  
   return {
     url,
     title,
@@ -491,6 +528,15 @@ p {
       image: twitterImage,
       status: twitterStatus,
       feedback: twitterFeedback
+    },
+    
+    // Add page speed metrics
+    pageSpeed: {
+      loadTime: loadTime,
+      resourceSize: resourceSize,
+      requestCount: requestCount,
+      status: pageSpeedStatus,
+      feedback: pageSpeedFeedback
     },
     
     mobileFriendliness: {
