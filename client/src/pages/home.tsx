@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { AnalysisResult } from "@/lib/types";
 import { SEOAnalyzerService } from "@/services/seo-analyzer";
@@ -13,11 +13,59 @@ import SEOTagsAnalysis from "@/components/seo-tags-analysis";
 import Recommendations from "@/components/recommendations";
 import MobileFriendliness from "@/components/mobile-friendliness";
 import PageSpeed from "@/components/page-speed";
-import { Search } from "lucide-react";
+import ShareButton from "@/components/share-button";
+import { Search, Loader2 } from "lucide-react";
+import { useLocation } from "wouter";
 
 export default function Home() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [isLoadingShared, setIsLoadingShared] = useState(false);
   const { toast } = useToast();
+  const [location] = useLocation();
+  
+  // Parse URL parameters on component mount to check for shared analysis
+  useEffect(() => {
+    const checkForSharedAnalysis = async () => {
+      try {
+        // Get the URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const sharedUrl = urlParams.get('url');
+        
+        if (sharedUrl) {
+          setIsLoadingShared(true);
+          // Fetch the analysis for the shared URL
+          const decodedUrl = decodeURIComponent(sharedUrl);
+          
+          // First try to get from existing analysis
+          let analysis = await SEOAnalyzerService.getAnalysisByUrl(decodedUrl);
+          
+          // If not found, perform a new analysis
+          if (!analysis) {
+            analysis = await SEOAnalyzerService.analyzeUrl(decodedUrl, false);
+          }
+          
+          if (analysis) {
+            setAnalysisResult(analysis);
+            toast({
+              title: "Shared Analysis Loaded",
+              description: `Showing SEO analysis for ${new URL(decodedUrl).hostname}`,
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error loading shared analysis:", error);
+        toast({
+          title: "Failed to Load Shared Analysis",
+          description: "There was an error loading the shared analysis",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoadingShared(false);
+      }
+    };
+    
+    checkForSharedAnalysis();
+  }, [location, toast]);
   
   const analyzeUrlMutation = useMutation({
     mutationFn: SEOAnalyzerService.analyzeUrl,
@@ -53,6 +101,11 @@ export default function Home() {
             <Search className="text-primary h-5 w-5" />
             <h1 className="text-lg font-semibold">SEO Meta Tag Analyzer</h1>
           </div>
+          {analysisResult && (
+            <div>
+              <ShareButton result={analysisResult} />
+            </div>
+          )}
         </div>
       </header>
       
@@ -60,10 +113,17 @@ export default function Home() {
       <main className="flex-grow container mx-auto px-4 py-6 max-w-5xl">
         <URLInput 
           onAnalyze={handleAnalyze} 
-          isLoading={analyzeUrlMutation.isPending} 
+          isLoading={analyzeUrlMutation.isPending || isLoadingShared} 
         />
         
-        {analysisResult && (
+        {isLoadingShared && (
+          <div className="text-center mt-8">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+            <p className="text-muted-foreground">Loading shared analysis...</p>
+          </div>
+        )}
+        
+        {!isLoadingShared && analysisResult && (
           <div>
             <ResultSummary result={analysisResult} />
             <CategorySummary result={analysisResult} />
