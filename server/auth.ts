@@ -84,10 +84,12 @@ export const authService = {
     // Hash password
     const hashedPassword = await hashPassword(password);
     
-    // Create user
+    // Create user with username field set to the same as email to satisfy any remaining
+    // constraints while we transition the schema
     const result = await db.insert(users).values({
       email,
       name,
+      username: email, // Use email as username for compatibility
       password: hashedPassword,
     }).returning();
     
