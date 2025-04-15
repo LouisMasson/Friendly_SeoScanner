@@ -12,8 +12,13 @@ export const SEOAnalyzerService = {
    * @returns Analysis result
    */
   async analyzeUrl(url: string, force: boolean = true): Promise<AnalysisResult> {
-    const response = await apiRequest('POST', '/api/analyze', { url, force });
-    return await response.json();
+    return await apiRequest<AnalysisResult>('/api/analyze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ url, force })
+    });
   },
 
   /**
@@ -22,8 +27,7 @@ export const SEOAnalyzerService = {
    * @returns List of recent analyses
    */
   async getRecentAnalyses(limit: number = 5): Promise<AnalysisResult[]> {
-    const response = await apiRequest('GET', `/api/recent?limit=${limit}`);
-    return await response.json();
+    return await apiRequest<AnalysisResult[]>(`/api/recent?limit=${limit}`);
   },
 
   /**
@@ -34,16 +38,7 @@ export const SEOAnalyzerService = {
   async getAnalysisByUrl(url: string): Promise<AnalysisResult | null> {
     try {
       const encodedUrl = encodeURIComponent(url);
-      const response = await apiRequest('GET', `/api/analysis?url=${encodedUrl}`);
-      
-      if (!response.ok) {
-        if (response.status === 404) {
-          return null;
-        }
-        throw new Error(`Failed to fetch analysis: ${response.statusText}`);
-      }
-      
-      return await response.json();
+      return await apiRequest<AnalysisResult>(`/api/analysis?url=${encodedUrl}`);
     } catch (error) {
       console.error("Error fetching analysis by URL:", error);
       return null;
