@@ -17,16 +17,24 @@ Check out the live demo: [SEO Meta Tag Analyzer](https://seo-scanner-interactive
 - **Visual Scorecards**: At-a-glance category summaries with color-coded progress indicators
 - **Actionable Recommendations**: Get specific tips to improve your website's SEO performance
 - **Responsive Design**: Fully functional on desktop and mobile devices
+- **User Authentication**: Secure login and registration system with session persistence
+- **PDF Export**: Generate professional PDF reports from analysis results
+- **Data Persistence**: Store and retrieve historical analyses from a PostgreSQL database
 
 ## 🚀 Technologies Used
 
 - **Frontend**: React with TypeScript
 - **Backend**: Express.js
+- **Database**: PostgreSQL with Drizzle ORM
+- **Authentication**: Passport.js with bcrypt for secure password hashing
+- **Session Management**: express-session with connect-pg-simple for persistent sessions
 - **Styling**: Tailwind CSS with ShadCN UI components
 - **State Management**: React Query
 - **Form Handling**: React Hook Form with Zod validation
 - **Routing**: Wouter for lightweight client-side routing
 - **HTTP Client**: Built-in fetch API with custom wrapper
+- **PDF Generation**: jsPDF for client-side PDF report creation
+- **HTML Parsing**: Cheerio for server-side HTML analysis
 
 ## 📋 SEO Analysis Categories
 
@@ -54,13 +62,48 @@ The analyzer evaluates websites across several critical SEO categories:
 ### Prerequisites
 
 - Node.js 16+ and npm
+- PostgreSQL database
 
 ### Installation
 
 1. Clone the repository
+   ```bash
+   git clone https://github.com/yourusername/seo-meta-tag-analyzer.git
+   cd seo-meta-tag-analyzer
+   ```
+
 2. Install dependencies
-3. Start the development server
-4. Open your browser and navigate to `http://localhost:5000`
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables
+   Create a `.env` file in the root directory with the following variables:
+   ```
+   DATABASE_URL=postgres://username:password@localhost:5432/seo_analyzer
+   SESSION_SECRET=your_session_secret_here
+   ```
+
+4. Initialize the database
+   ```bash
+   npm run db:push
+   ```
+
+5. Start the development server
+   ```bash
+   npm run dev
+   ```
+
+6. Open your browser and navigate to `http://localhost:5000`
+
+### Authentication
+
+To use the authentication system:
+
+1. Register a new account from the Register page
+2. Login with your credentials
+3. Use the authenticated features like saving analyses
+4. Logout from the dropdown menu in the header
 
 ## 🔍 How to Use
 
