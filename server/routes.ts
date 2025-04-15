@@ -40,6 +40,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Registration endpoint
   app.post("/api/auth/register", async (req: Request, res: Response) => {
     try {
+      // Log registration attempt for debugging
+      console.log("Registration attempt with data:", {
+        email: req.body.email,
+        name: req.body.name,
+        // Don't log passwords
+      });
+      
       // Validate request body
       const validatedData = registerUserSchema.parse(req.body);
       
@@ -47,34 +54,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Passwords do not match" });
       }
       
-      // Register user
-      const user = await authService.register(
-        validatedData.email,
-        validatedData.name,
-        validatedData.password
-      );
-      
-      // Remove sensitive data
-      const { password, ...userWithoutPassword } = user;
-      
-      return res.status(201).json({
-        message: "User registered successfully",
-        user: userWithoutPassword
-      });
+      try {
+        // Register user
+        const user = await authService.register(
+          validatedData.email,
+          validatedData.name,
+          validatedData.password
+        );
+        
+        console.log("User registered successfully:", user.id);
+        
+        // After registration, log the user in automatically
+        req.login(user, (loginErr) => {
+          if (loginErr) {
+            console.error("Auto-login after registration failed:", loginErr);
+            // Still return success even if auto-login fails
+            // Remove sensitive data
+            const { password, ...userWithoutPassword } = user;
+            
+            return res.status(201).json({
+              message: "User registered successfully, but automatic login failed",
+              user: userWithoutPassword
+            });
+          }
+          
+          // Remove sensitive data
+          const { password, ...userWithoutPassword } = user;
+          
+          return res.status(201).json({
+            message: "User registered successfully",
+            user: userWithoutPassword
+          });
+        });
+      } catch (registerError: any) {
+        console.error("Registration operation failed:", registerError);
+        
+        if (registerError.message === "User already exists") {
+          return res.status(409).json({ message: "Email already in use" });
+        }
+        
+        // Re-throw to be caught by the outer catch
+        throw registerError;
+      }
     } catch (error: any) {
       if (error instanceof z.ZodError) {
+        console.error("Validation error:", error.errors);
         return res.status(400).json({ 
           message: "Invalid input", 
           details: error.errors 
         });
       }
       
-      if (error.message === "User already exists") {
-        return res.status(409).json({ message: "Email already in use" });
-      }
-      
       console.error("Registration error:", error);
-      return res.status(500).json({ message: "Failed to register user" });
+      return res.status(500).json({ 
+        message: "Failed to register user",
+        error: error.message // Include the specific error message for debugging
+      });
     }
   });
   
