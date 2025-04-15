@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, jsonb, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -15,6 +15,22 @@ export const insertUserSchema = createInsertSchema(users).pick({
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+// SEO Analyses table for database persistence
+export const seoAnalyses = pgTable("seo_analyses", {
+  id: serial("id").primaryKey(),
+  url: text("url").notNull(),
+  analyzed_at: timestamp("analyzed_at").defaultNow().notNull(),
+  data: jsonb("data").notNull(), // Store the entire analysis as JSON
+});
+
+export const insertSEOAnalysisSchema = createInsertSchema(seoAnalyses).pick({
+  url: true,
+  data: true,
+});
+
+export type InsertSEOAnalysis = z.infer<typeof insertSEOAnalysisSchema>;
+export type SEOAnalysisRecord = typeof seoAnalyses.$inferSelect;
 
 // Define all our response types for the SEO analyzer
 export const seoAnalysisSchema = z.object({
