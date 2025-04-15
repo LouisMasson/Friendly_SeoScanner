@@ -151,31 +151,31 @@ export default function PageSpeed({ result }: PageSpeedProps) {
               <ul className="space-y-2 text-sm">
                 <li className="flex items-start gap-2">
                   <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="text-primary"><path d="m5 12 5 5 10-10"></path></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m5 12 5 5 10-10"></path></svg>
                   </div>
                   <span>Compress images and use WebP format</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="text-primary"><path d="m5 12 5 5 10-10"></path></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m5 12 5 5 10-10"></path></svg>
                   </div>
                   <span>Minify CSS, JavaScript, and HTML</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="text-primary"><path d="m5 12 5 5 10-10"></path></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m5 12 5 5 10-10"></path></svg>
                   </div>
                   <span>Enable browser caching</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="text-primary"><path d="m5 12 5 5 10-10"></path></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m5 12 5 5 10-10"></path></svg>
                   </div>
                   <span>Use a Content Delivery Network (CDN)</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" className="text-primary"><path d="m5 12 5 5 10-10"></path></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="m5 12 5 5 10-10"></path></svg>
                   </div>
                   <span>Reduce the number of HTTP requests</span>
                 </li>
