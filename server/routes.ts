@@ -1,12 +1,140 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { seoAnalysisSchema, type SEOAnalysis } from "@shared/schema";
+import { seoAnalysisSchema, type SEOAnalysis, loginUserSchema, registerUserSchema } from "@shared/schema";
 import fetch from "node-fetch";
 import * as cheerio from "cheerio";
 import { z } from "zod";
+import passport from "./auth";
+import { authService, isAuthenticated } from "./auth";
+import session from "express-session";
+import pgSession from "connect-pg-simple";
+import postgres from "postgres";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Setup session store with PostgreSQL
+  const PgSession = pgSession(session);
+  const client = postgres(process.env.DATABASE_URL || "", { max: 5 });
+  
+  // Configure session middleware
+  app.use(
+    session({
+      store: new PgSession({
+        conObject: {
+          connectionString: process.env.DATABASE_URL,
+          ssl: false
+        },
+        tableName: 'sessions'
+      }),
+      secret: process.env.SESSION_SECRET || 'seo-analyzer-session-secret',
+      resave: false,
+      saveUninitialized: false,
+      cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
+    })
+  );
+  
+  // Initialize passport middleware
+  app.use(passport.initialize());
+  app.use(passport.session());
+  
+  // Registration endpoint
+  app.post("/api/auth/register", async (req: Request, res: Response) => {
+    try {
+      // Validate request body
+      const validatedData = registerUserSchema.parse(req.body);
+      
+      if (validatedData.password !== validatedData.confirmPassword) {
+        return res.status(400).json({ message: "Passwords do not match" });
+      }
+      
+      // Register user
+      const user = await authService.register(
+        validatedData.email,
+        validatedData.name,
+        validatedData.password
+      );
+      
+      // Remove sensitive data
+      const { password, ...userWithoutPassword } = user;
+      
+      return res.status(201).json({
+        message: "User registered successfully",
+        user: userWithoutPassword
+      });
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid input", 
+          details: error.errors 
+        });
+      }
+      
+      if (error.message === "User already exists") {
+        return res.status(409).json({ message: "Email already in use" });
+      }
+      
+      console.error("Registration error:", error);
+      return res.status(500).json({ message: "Failed to register user" });
+    }
+  });
+  
+  // Login endpoint
+  app.post("/api/auth/login", (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Validate request body
+      const validatedData = loginUserSchema.parse(req.body);
+      
+      passport.authenticate("local", (err: any, user: any, info: any) => {
+        if (err) {
+          return next(err);
+        }
+        
+        if (!user) {
+          return res.status(401).json({ message: info.message || "Invalid credentials" });
+        }
+        
+        req.logIn(user, (err) => {
+          if (err) {
+            return next(err);
+          }
+          
+          // Remove sensitive data
+          const { password, ...userWithoutPassword } = user;
+          
+          return res.json({
+            message: "Login successful",
+            user: userWithoutPassword
+          });
+        });
+      })(req, res, next);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ 
+          message: "Invalid input", 
+          details: error.errors 
+        });
+      }
+      
+      console.error("Login error:", error);
+      return res.status(500).json({ message: "Login failed" });
+    }
+  });
+  
+  // Logout endpoint
+  app.post("/api/auth/logout", (req: Request, res: Response) => {
+    req.logout((err) => {
+      if (err) {
+        return res.status(500).json({ message: "Logout failed" });
+      }
+      res.json({ message: "Logged out successfully" });
+    });
+  });
+  
+  // Get current user endpoint
+  app.get("/api/auth/me", isAuthenticated, (req: Request, res: Response) => {
+    const { password, ...userWithoutPassword } = req.user as any;
+    res.json(userWithoutPassword);
+  });
   // Endpoint to analyze a URL
   app.post("/api/analyze", async (req: Request, res: Response) => {
     try {
