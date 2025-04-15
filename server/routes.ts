@@ -94,6 +94,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Endpoint to get a specific analysis by URL
+  app.get("/api/analysis", async (req: Request, res: Response) => {
+    try {
+      const urlParam = req.query.url?.toString();
+      
+      if (!urlParam) {
+        return res.status(400).json({ message: "URL parameter is required" });
+      }
+      
+      // URL decode the parameter
+      const decodedUrl = decodeURIComponent(urlParam);
+      
+      const analysis = await storage.getAnalysisByUrl(decodedUrl);
+      
+      if (!analysis) {
+        return res.status(404).json({ message: "Analysis not found for the provided URL" });
+      }
+      
+      return res.json(analysis);
+    } catch (error) {
+      console.error("Error fetching analysis by URL:", error);
+      return res.status(500).json({ message: "Failed to fetch analysis" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
