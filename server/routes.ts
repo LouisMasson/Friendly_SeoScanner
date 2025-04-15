@@ -26,6 +26,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Start timing for page speed analysis
+      console.log("Starting page speed analysis timing");
       const startTime = Date.now();
       
       // Fetch the HTML content
@@ -45,14 +46,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Calculate load time in milliseconds
       const loadTime = Date.now() - startTime;
+      console.log(`Page load time: ${loadTime}ms`);
       
       // Get page size in KB
-      const contentLength = parseInt(response.headers.get('content-length') || '0') / 1024;
+      let resourceSize = 0;
+      
+      // Try to get content-length header first
+      const contentLength = parseInt(response.headers.get('content-length') || '0');
+      if (contentLength > 0) {
+        resourceSize = contentLength / 1024; // Convert bytes to KB
+      } else {
+        // If content-length not available, use HTML size as fallback
+        resourceSize = html.length / 1024;
+      }
+      
+      console.log(`Resource size: ${resourceSize.toFixed(2)}KB`);
       
       // Parse the HTML and extract SEO tags including page speed data
       const analysis = await analyzeSEO(url, html, {
         loadTime,
-        resourceSize: contentLength || html.length / 1024,
+        resourceSize,
         requestCount: 1 // This is just the initial request, real-world would include all assets
       });
       
@@ -459,10 +472,22 @@ p {
   let pageSpeedStatus: "good" | "warning" | "error" = "good";
   let pageSpeedFeedback = "Your page loads quickly and efficiently.";
   
-  // Default values if pageSpeedData is not provided
-  const loadTime = pageSpeedData?.loadTime || 0;
-  const resourceSize = pageSpeedData?.resourceSize || 0;
-  const requestCount = pageSpeedData?.requestCount || 1;
+  // Make sure we have valid pageSpeedData
+  if (!pageSpeedData) {
+    console.error("No page speed data provided to analyzeSEO function");
+    pageSpeedData = {
+      loadTime: 2000, // Default to medium speed
+      resourceSize: 500, // Default to medium size (500KB)
+      requestCount: 1
+    };
+  }
+  
+  // Extract values with proper logging
+  const loadTime = pageSpeedData.loadTime;
+  const resourceSize = pageSpeedData.resourceSize || 0;
+  const requestCount = pageSpeedData.requestCount || 1;
+  
+  console.log(`Analyzing page speed: ${loadTime}ms load time, ${resourceSize.toFixed(2)}KB size`);
   
   // Evaluate page speed status based on load time
   if (loadTime > 3000) { // More than 3 seconds is slow
