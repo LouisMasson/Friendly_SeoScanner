@@ -61,10 +61,19 @@ export default function CategorySummary({ result }: CategorySummaryProps) {
   // Use the mobile-friendliness score directly
   const mobileScore = result.mobileFriendliness?.score || 0;
   
+  // Check if pageSpeed data exists
+  const pageSpeed = result.pageSpeed || {
+    loadTime: 0,
+    resourceSize: 0,
+    requestCount: 1,
+    status: 'warning' as SEOStatusType,
+    feedback: 'Page speed data not available.'
+  };
+  
   // Calculate page speed score (100 is best, 0 is worst)
   const calculatePageSpeedScore = (): number => {
     // Convert load time to a score (1s is 100%, 5s is 0%)
-    const loadTimeMs = result.pageSpeed?.loadTime || 0;
+    const loadTimeMs = pageSpeed.loadTime || 0;
     if (loadTimeMs <= 1000) return 100;
     if (loadTimeMs >= 5000) return 0;
     return Math.round(100 - ((loadTimeMs - 1000) / 4000) * 100);
@@ -76,7 +85,7 @@ export default function CategorySummary({ result }: CategorySummaryProps) {
   const socialStatus = getStatusFromScore(socialScore);
   const metaTagsStatus = getStatusFromScore(metaTagsScore);
   const mobileStatus = result.mobileFriendliness?.status || "error";
-  const pageSpeedStatus = result.pageSpeed?.status || "error";
+  const pageSpeedStatus = pageSpeed.status || "warning";
   
   // Get icon for category
   const getStatusIcon = (status: SEOStatusType) => {
@@ -252,11 +261,11 @@ export default function CategorySummary({ result }: CategorySummaryProps) {
                     <div>
                       <h4 className="font-medium">Load Time</h4>
                       <p className="text-sm">
-                        {result.pageSpeed?.loadTime < 1000 
-                          ? `Fast: ${result.pageSpeed?.loadTime}ms` 
-                          : result.pageSpeed?.loadTime < 3000 
-                            ? `Average: ${(result.pageSpeed?.loadTime / 1000).toFixed(2)}s` 
-                            : `Slow: ${(result.pageSpeed?.loadTime / 1000).toFixed(2)}s`}
+                        {pageSpeed.loadTime < 1000 
+                          ? `Fast: ${pageSpeed.loadTime}ms` 
+                          : pageSpeed.loadTime < 3000 
+                            ? `Average: ${(pageSpeed.loadTime / 1000).toFixed(2)}s` 
+                            : `Slow: ${(pageSpeed.loadTime / 1000).toFixed(2)}s`}
                       </p>
                     </div>
                   </div>
@@ -267,10 +276,10 @@ export default function CategorySummary({ result }: CategorySummaryProps) {
                     <div>
                       <h4 className="font-medium">Page Size</h4>
                       <p className="text-sm">
-                        {result.pageSpeed?.resourceSize ? 
-                          (result.pageSpeed.resourceSize < 1024 
-                            ? `${Math.round(result.pageSpeed.resourceSize)} KB` 
-                            : `${(result.pageSpeed.resourceSize / 1024).toFixed(2)} MB`) 
+                        {pageSpeed.resourceSize ? 
+                          (pageSpeed.resourceSize < 1024 
+                            ? `${Math.round(pageSpeed.resourceSize)} KB` 
+                            : `${(pageSpeed.resourceSize / 1024).toFixed(2)} MB`) 
                           : "Unknown"}
                       </p>
                     </div>
@@ -282,7 +291,7 @@ export default function CategorySummary({ result }: CategorySummaryProps) {
                     Page speed is a critical ranking factor for Google
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {result.pageSpeed?.feedback || "Fast loading pages provide better user experience and can improve search rankings."}
+                    {pageSpeed.feedback || "Fast loading pages provide better user experience and can improve search rankings."}
                   </p>
                 </div>
               </div>

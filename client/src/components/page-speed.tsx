@@ -21,6 +21,15 @@ interface PageSpeedProps {
 export default function PageSpeed({ result }: PageSpeedProps) {
   const [open, setOpen] = useState(true);
   
+  // Check if pageSpeed data exists
+  const pageSpeed = result.pageSpeed || {
+    loadTime: 0,
+    resourceSize: 0,
+    requestCount: 1,
+    status: 'warning' as SEOStatusType,
+    feedback: 'Page speed data not available.'
+  };
+  
   // Helper function to format load time nicely
   const formatLoadTime = (ms: number): string => {
     return ms < 1000 
@@ -89,23 +98,23 @@ export default function PageSpeed({ result }: PageSpeedProps) {
                     <Clock className="h-5 w-5 text-muted-foreground" />
                     <h3 className="font-medium">Page Load Time</h3>
                   </div>
-                  {getStatusBadge(result.pageSpeed.status)}
+                  {getStatusBadge(pageSpeed.status)}
                 </div>
                 
                 <div className="flex items-center space-x-2">
-                  <span className="text-2xl font-bold" style={{ color: getStatusColor(result.pageSpeed.status) }}>
-                    {formatLoadTime(result.pageSpeed.loadTime)}
+                  <span className="text-2xl font-bold" style={{ color: getStatusColor(pageSpeed.status) }}>
+                    {formatLoadTime(pageSpeed.loadTime)}
                   </span>
                 </div>
                 
                 <Progress 
-                  value={getLoadTimeScale(result.pageSpeed.loadTime)} 
+                  value={getLoadTimeScale(pageSpeed.loadTime)} 
                   className="h-2" 
-                  indicatorClassName={`bg-${result.pageSpeed.status === 'good' ? 'green' : result.pageSpeed.status === 'warning' ? 'yellow' : 'red'}-500`}
+                  indicatorClassName={`bg-${pageSpeed.status === 'good' ? 'green' : pageSpeed.status === 'warning' ? 'yellow' : 'red'}-500`}
                 />
                 
                 <p className="text-sm text-muted-foreground mt-2">
-                  {result.pageSpeed.feedback}
+                  {pageSpeed.feedback}
                 </p>
               </div>
               
@@ -119,12 +128,12 @@ export default function PageSpeed({ result }: PageSpeedProps) {
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Page Size:</span>
-                    <span className="font-medium">{formatSize(result.pageSpeed.resourceSize || 0)}</span>
+                    <span className="font-medium">{formatSize(pageSpeed.resourceSize || 0)}</span>
                   </div>
                   
                   <div className="flex justify-between items-center">
                     <span className="text-sm">Request Count:</span>
-                    <span className="font-medium">{result.pageSpeed.requestCount || 1}</span>
+                    <span className="font-medium">{pageSpeed.requestCount || 1}</span>
                   </div>
                 </div>
                 
