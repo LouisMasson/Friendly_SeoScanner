@@ -58,6 +58,15 @@ export const seoAnalysisSchema = z.object({
     feedback: z.string()
   }),
   
+  // Page Speed metrics
+  pageSpeed: z.object({
+    loadTime: z.number(),
+    resourceSize: z.number().optional(), // in KB
+    requestCount: z.number().optional(),
+    status: z.enum(["good", "warning", "error"]),
+    feedback: z.string()
+  }),
+  
   // Mobile-friendliness data
   mobileFriendliness: z.object({
     score: z.number(),

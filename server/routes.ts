@@ -25,6 +25,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
+      // Start timing for page speed analysis
+      const startTime = Date.now();
+      
       // Fetch the HTML content
       const response = await fetch(url, {
         headers: {
@@ -40,8 +43,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const html = await response.text();
       
-      // Parse the HTML and extract SEO tags
-      const analysis = await analyzeSEO(url, html);
+      // Calculate load time in milliseconds
+      const loadTime = Date.now() - startTime;
+      
+      // Get page size in KB
+      const contentLength = parseInt(response.headers.get('content-length') || '0') / 1024;
+      
+      // Parse the HTML and extract SEO tags including page speed data
+      const analysis = await analyzeSEO(url, html, {
+        loadTime,
+        resourceSize: contentLength || html.length / 1024,
+        requestCount: 1 // This is just the initial request, real-world would include all assets
+      });
       
       // Save the analysis
       await storage.saveAnalysis(analysis);
@@ -73,7 +86,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 }
 
 // Helper function to analyze SEO tags from HTML
-async function analyzeSEO(url: string, html: string): Promise<SEOAnalysis> {
+async function analyzeSEO(
+  url: string, 
+  html: string, 
+  pageSpeedData?: { 
+    loadTime: number; 
+    resourceSize?: number; 
+    requestCount?: number; 
+  }
+): Promise<SEOAnalysis> {
   const $ = cheerio.load(html);
   
   // Extract and analyze title
