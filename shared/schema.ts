@@ -1,16 +1,44 @@
-import { pgTable, text, serial, integer, boolean, jsonb, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, jsonb, timestamp, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// User authentication table
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
+  email: text("email").notNull().unique(),
+  name: text("name").notNull(),
   password: text("password").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
+  email: true,
+  name: true,
   password: true,
+});
+
+// For validation during sign-up
+export const registerUserSchema = z.object({
+  email: z.string().email("Please enter a valid email"),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+
+// For validation during login
+export const loginUserSchema = z.object({
+  email: z.string().email("Please enter a valid email"),
+  password: z.string().min(1, "Password is required"),
+});
+
+// Sessions table for auth persistence
+export const sessions = pgTable("sessions", {
+  sid: varchar("sid", { length: 255 }).primaryKey(),
+  sess: jsonb("sess").notNull(),
+  expire: timestamp("expire", { withTimezone: true }).notNull(),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
