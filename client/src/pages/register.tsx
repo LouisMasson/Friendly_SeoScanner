@@ -42,7 +42,7 @@ export default function Register() {
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
     try {
-      const response = await apiRequest('/api/auth/register', {
+      const response = await apiRequest<{message: string, user: any}>('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
