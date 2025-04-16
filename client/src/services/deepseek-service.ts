@@ -1,4 +1,4 @@
-import { AnalysisResult, RecommendationEntry } from "@/lib/types";
+import { AnalysisResult, AIRecommendationsResponse } from "@/lib/types";
 import { apiRequest } from "@/lib/queryClient";
 
 /**
@@ -11,15 +11,9 @@ export const DeepSeekService = {
    * @param result The SEO analysis result
    * @returns Array of AI-generated recommendations
    */
-  async generateRecommendations(result: AnalysisResult): Promise<{
-    recommendations: RecommendationEntry[];
-    summaryText: string;
-  }> {
+  async generateRecommendations(result: AnalysisResult): Promise<AIRecommendationsResponse> {
     try {
-      const response = await apiRequest<{
-        recommendations: RecommendationEntry[];
-        summaryText: string;
-      }>('/api/ai/recommendations', {
+      const response = await apiRequest<AIRecommendationsResponse>('/api/ai/recommendations', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

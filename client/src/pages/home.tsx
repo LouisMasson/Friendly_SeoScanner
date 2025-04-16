@@ -11,6 +11,7 @@ import GooglePreview from "@/components/google-preview";
 import SocialPreview from "@/components/social-preview";
 import SEOTagsAnalysis from "@/components/seo-tags-analysis";
 import Recommendations from "@/components/recommendations";
+import AIRecommendations from "@/components/ai-recommendations";
 import MobileFriendliness from "@/components/mobile-friendliness";
 import PageSpeed from "@/components/page-speed";
 import ShareButton from "@/components/share-button";

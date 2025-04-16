@@ -283,6 +283,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Endpoint to generate AI recommendations based on SEO analysis
+  app.post("/api/ai/recommendations", async (req: Request, res: Response) => {
+    try {
+      // Validate that we have an analysis result in the request body
+      if (!req.body.analysisResult) {
+        return res.status(400).json({ message: "Analysis result is required" });
+      }
+
+      const analysisResult = req.body.analysisResult as SEOAnalysis;
+      
+      // Generate AI recommendations using DeepSeek
+      const aiRecommendations = await aiService.generateRecommendations(analysisResult);
+      
+      return res.json(aiRecommendations);
+    } catch (error) {
+      console.error("Error generating AI recommendations:", error);
+      
+      // If it's a DeepSeek API error, provide a more specific message
+      if (error instanceof Error && error.message.includes("DeepSeek API")) {
+        return res.status(503).json({ 
+          message: "AI service currently unavailable",
+          error: error.message
+        });
+      }
+      
+      return res.status(500).json({ 
+        message: "Failed to generate AI recommendations",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -1,4 +1,4 @@
-import { SEOAnalysis } from "../shared/schema";
+import { SEOAnalysis } from "@shared/schema";
 import { RecommendationEntry } from "@shared/types";
 import fetch from "node-fetch";
 

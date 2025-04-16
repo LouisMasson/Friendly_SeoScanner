@@ -28,4 +28,9 @@ export interface RecommendationEntry {
   exampleCode?: string;
 }
 
+export interface AIRecommendationsResponse {
+  recommendations: RecommendationEntry[];
+  summaryText: string;
+}
+
 export type AnalysisResult = SEOAnalysis;
