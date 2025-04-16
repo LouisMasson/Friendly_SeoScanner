@@ -10,6 +10,7 @@ import { authService, isAuthenticated } from "./auth";
 import session from "express-session";
 import pgSession from "connect-pg-simple";
 import postgres from "postgres";
+import { aiService } from "./ai-service";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup session store with PostgreSQL
