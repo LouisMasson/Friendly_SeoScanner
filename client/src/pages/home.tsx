@@ -134,6 +134,7 @@ export default function Home() {
             <MobileFriendliness result={analysisResult} />
             <SEOTagsAnalysis result={analysisResult} />
             <Recommendations result={analysisResult} />
+            <AIRecommendations result={analysisResult} />
           </div>
         )}
       </main>
