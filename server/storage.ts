@@ -4,32 +4,46 @@ import { eq, desc } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
-  saveAnalysis(analysis: SEOAnalysis): Promise<SEOAnalysis>;
+  saveAnalysis(analysis: SEOAnalysis, userId?: number): Promise<SEOAnalysis>;
   getAnalysisByUrl(url: string): Promise<SEOAnalysis | undefined>;
-  getRecentAnalyses(limit: number): Promise<SEOAnalysis[]>;
+  getRecentAnalyses(limit: number, userId?: number): Promise<SEOAnalysis[]>;
+  getUserAnalyses(userId: number, limit?: number): Promise<SEOAnalysis[]>;
 }
 
 // In-memory implementation (kept as a fallback)
 export class MemStorage implements IStorage {
-  private analyses: Map<string, SEOAnalysis>;
+  private analyses: Map<string, { analysis: SEOAnalysis, userId?: number }>;
 
   constructor() {
     this.analyses = new Map();
   }
 
-  async saveAnalysis(analysis: SEOAnalysis): Promise<SEOAnalysis> {
-    this.analyses.set(analysis.url, analysis);
+  async saveAnalysis(analysis: SEOAnalysis, userId?: number): Promise<SEOAnalysis> {
+    this.analyses.set(analysis.url, { analysis, userId });
     return analysis;
   }
 
   async getAnalysisByUrl(url: string): Promise<SEOAnalysis | undefined> {
-    return this.analyses.get(url);
+    const entry = this.analyses.get(url);
+    return entry ? entry.analysis : undefined;
   }
 
-  async getRecentAnalyses(limit: number): Promise<SEOAnalysis[]> {
-    return Array.from(this.analyses.values())
+  async getRecentAnalyses(limit: number, userId?: number): Promise<SEOAnalysis[]> {
+    const values = Array.from(this.analyses.values());
+    
+    // Filter by userId if provided
+    const filtered = userId 
+      ? values.filter(entry => entry.userId === userId)
+      : values;
+    
+    return filtered
+      .map(entry => entry.analysis)
       .slice(0, limit)
       .reverse(); // Latest first
+  }
+  
+  async getUserAnalyses(userId: number, limit: number = 10): Promise<SEOAnalysis[]> {
+    return this.getRecentAnalyses(limit, userId);
   }
 }
 

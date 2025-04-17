@@ -50,11 +50,13 @@ export const seoAnalyses = pgTable("seo_analyses", {
   url: text("url").notNull(),
   analyzed_at: timestamp("analyzed_at").defaultNow().notNull(),
   data: jsonb("data").notNull(), // Store the entire analysis as JSON
+  userId: integer("user_id").references(() => users.id, { onDelete: 'cascade' }),
 });
 
 export const insertSEOAnalysisSchema = createInsertSchema(seoAnalyses).pick({
   url: true,
   data: true,
+  userId: true,
 });
 
 export type InsertSEOAnalysis = z.infer<typeof insertSEOAnalysisSchema>;
