@@ -1,7 +1,7 @@
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/auth-context';
-import { LucideSearch, User, Menu } from 'lucide-react';
+import { LucideSearch, Menu, History } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -62,6 +62,12 @@ export default function Header() {
                       </Avatar>
                       <div className="text-sm font-medium">{user?.name}</div>
                     </div>
+                    <Link href="/historique" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start flex items-center gap-2">
+                        <History className="h-4 w-4" />
+                        Historique
+                      </Button>
+                    </Link>
                     <div className="px-2">
                       <Button onClick={handleLogout} variant="ghost" className="w-full justify-start">
                         Logout
@@ -95,6 +101,12 @@ export default function Header() {
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <Link href="/historique">
+                    <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
+                      <History className="h-4 w-4" />
+                      Historique
+                    </DropdownMenuItem>
+                  </Link>
                   <DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
                     Logout
                   </DropdownMenuItem>

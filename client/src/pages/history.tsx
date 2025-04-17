@@ -3,25 +3,24 @@ import { useAuth } from "@/contexts/auth-context";
 import { useLocation } from "wouter";
 import { AnalysisResult } from "@/lib/types";
 import { SEOAnalyzerService } from "@/services/seo-analyzer";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, Clock, Globe, ChevronRight, BarChart2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Clock, Globe, ChevronRight, BarChart2 } from "lucide-react";
 
 export default function HistoryPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [analyses, setAnalyses] = useState<AnalysisResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
 
   useEffect(() => {
     // Redirect to login if not authenticated
     if (!authLoading && !isAuthenticated) {
-      navigate("/login");
+      setLocation("/login");
     }
-  }, [isAuthenticated, authLoading, navigate]);
+  }, [isAuthenticated, authLoading, setLocation]);
 
   useEffect(() => {
     const fetchAnalyses = async () => {
@@ -48,13 +47,15 @@ export default function HistoryPage() {
   }, [isAuthenticated, toast]);
 
   const handleViewAnalysis = (url: string) => {
-    navigate(`/?url=${encodeURIComponent(url)}`);
+    setLocation(`/?url=${encodeURIComponent(url)}`);
   };
 
   if (authLoading) {
     return (
       <div className="container flex items-center justify-center min-h-screen">
-        <Spinner className="w-8 h-8" />
+        <div className="animate-spin text-muted-foreground w-8 h-8">
+          <Loader2 className="h-full w-full" />
+        </div>
       </div>
     );
   }
@@ -70,7 +71,9 @@ export default function HistoryPage() {
 
       {isLoading ? (
         <div className="flex justify-center py-20">
-          <Spinner className="w-8 h-8" />
+          <div className="animate-spin text-muted-foreground w-8 h-8">
+            <Loader2 className="h-full w-full" />
+          </div>
         </div>
       ) : analyses.length === 0 ? (
         <Card>
@@ -82,7 +85,7 @@ export default function HistoryPage() {
             <p className="text-muted-foreground mb-6">
               Vous n'avez pas encore effectué d'analyse SEO. Analysez un site pour le voir apparaître ici.
             </p>
-            <Button onClick={() => navigate("/")}>
+            <Button onClick={() => setLocation("/")}>
               Analyser un site
             </Button>
           </CardContent>
