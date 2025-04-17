@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
+import HistoryPage from "@/pages/history";
 import { AuthProvider } from "@/contexts/auth-context";
 import Header from "@/components/header";
 
@@ -18,6 +19,7 @@ function Router() {
           <Route path="/" component={Home} />
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
+          <Route path="/historique" component={HistoryPage} />
           {/* Fallback to 404 */}
           <Route component={NotFound} />
         </Switch>

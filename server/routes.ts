@@ -292,6 +292,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Endpoint to get user's analysis history
+  app.get("/api/user/analyses", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const limit = Number(req.query.limit) || 10;
+      const userId = (req.user as any).id;
+      
+      const analyses = await storage.getUserAnalyses(userId, limit);
+      return res.json(analyses);
+    } catch (error) {
+      console.error("Error fetching user analyses:", error);
+      return res.status(500).json({ 
+        message: "Failed to fetch user analyses",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
   // Endpoint to generate AI recommendations based on SEO analysis
   app.post("/api/ai/recommendations", async (req: Request, res: Response) => {
     try {

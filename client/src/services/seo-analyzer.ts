@@ -24,10 +24,11 @@ export const SEOAnalyzerService = {
   /**
    * Get recent analyses
    * @param limit Number of recent analyses to retrieve
+   * @param userOnly Whether to only get the current user's analyses
    * @returns List of recent analyses
    */
-  async getRecentAnalyses(limit: number = 5): Promise<AnalysisResult[]> {
-    return await apiRequest<AnalysisResult[]>(`/api/recent?limit=${limit}`);
+  async getRecentAnalyses(limit: number = 5, userOnly: boolean = false): Promise<AnalysisResult[]> {
+    return await apiRequest<AnalysisResult[]>(`/api/recent?limit=${limit}&user=${userOnly}`);
   },
 
   /**
@@ -42,6 +43,21 @@ export const SEOAnalyzerService = {
     } catch (error) {
       console.error("Error fetching analysis by URL:", error);
       return null;
+    }
+  },
+  
+  /**
+   * Get user's analysis history
+   * @param limit Maximum number of analyses to retrieve
+   * @returns List of the user's previous analyses
+   */
+  async getUserAnalyses(limit: number = 10): Promise<AnalysisResult[]> {
+    try {
+      return await apiRequest<AnalysisResult[]>(`/api/user/analyses?limit=${limit}`);
+    } catch (error) {
+      console.error("Error fetching user analyses:", error);
+      // Return empty array if unauthorized or other error
+      return [];
     }
   }
 };
