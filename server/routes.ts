@@ -233,8 +233,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         requestCount: 1 // This is just the initial request, real-world would include all assets
       });
       
-      // Save the analysis
-      await storage.saveAnalysis(analysis);
+      // Get user ID if authenticated
+      const userId = req.isAuthenticated() ? (req.user as any).id : undefined;
+      
+      // Save the analysis with user ID if authenticated
+      await storage.saveAnalysis(analysis, userId);
       
       return res.json(analysis);
     } catch (error) {
@@ -250,7 +253,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/recent", async (req: Request, res: Response) => {
     try {
       const limit = Number(req.query.limit) || 5;
-      const analyses = await storage.getRecentAnalyses(limit);
+      
+      // Get user ID if authenticated and 'user' param is set to true
+      const userId = req.isAuthenticated() && req.query.user === 'true' 
+        ? (req.user as any).id 
+        : undefined;
+        
+      const analyses = await storage.getRecentAnalyses(limit, userId);
       return res.json(analyses);
     } catch (error) {
       console.error("Error fetching recent analyses:", error);
