@@ -112,7 +112,7 @@ export default function AIRecommendations({ result }: AIRecommendationsProps) {
                     <Sparkles className="h-4 w-4 text-primary" />
                     AI Summary
                   </AlertTitle>
-                  <AlertDescription className="mt-2">
+                  <AlertDescription className="mt-2 break-words hyphens-auto">
                     {summaryText}
                   </AlertDescription>
                 </Alert>
@@ -133,7 +133,7 @@ export default function AIRecommendations({ result }: AIRecommendationsProps) {
                         </div>
                         <div className="space-y-1 flex-1">
                           <h3 className={`font-semibold ${styles.title}`}>{rec.title}</h3>
-                          <p className="text-foreground/80 text-sm mt-1">
+                          <p className="text-foreground/80 text-sm mt-1 break-words hyphens-auto">
                             {rec.description}
                           </p>
                           {rec.exampleCode && (
@@ -144,9 +144,11 @@ export default function AIRecommendations({ result }: AIRecommendationsProps) {
                                     See example code
                                   </AccordionTrigger>
                                   <AccordionContent>
-                                    <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-x-auto">
-                                      <code>{rec.exampleCode}</code>
-                                    </pre>
+                                    <div className="max-w-full overflow-x-auto">
+                                      <pre className="mt-2 text-xs bg-muted p-2 rounded whitespace-pre-wrap break-all">
+                                        <code>{rec.exampleCode}</code>
+                                      </pre>
+                                    </div>
                                   </AccordionContent>
                                 </AccordionItem>
                               </Accordion>

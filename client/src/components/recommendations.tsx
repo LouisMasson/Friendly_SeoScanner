@@ -80,7 +80,7 @@ export default function Recommendations({ result }: RecommendationsProps) {
                         {styles.icon}
                         <div>
                           <h3 className={`font-semibold ${styles.title}`}>{rec.title}</h3>
-                          <p className="text-foreground/80 text-sm mt-1">
+                          <p className="text-foreground/80 text-sm mt-1 break-words hyphens-auto">
                             {rec.description}
                           </p>
                           {rec.exampleCode && (
@@ -91,9 +91,11 @@ export default function Recommendations({ result }: RecommendationsProps) {
                                     See example code
                                   </AccordionTrigger>
                                   <AccordionContent>
-                                    <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-x-auto">
-                                      <code>{rec.exampleCode}</code>
-                                    </pre>
+                                    <div className="max-w-full overflow-x-auto">
+                                      <pre className="mt-2 text-xs bg-muted p-2 rounded whitespace-pre-wrap break-all">
+                                        <code>{rec.exampleCode}</code>
+                                      </pre>
+                                    </div>
                                   </AccordionContent>
                                 </AccordionItem>
                               </Accordion>
