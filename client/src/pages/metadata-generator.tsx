@@ -86,10 +86,11 @@ export default function MetadataGenerator() {
     queryKey: ['/api/metadata/jobs', activeJobId, 'status'],
     queryFn: () => activeJobId ? MetadataService.getJobStatus(activeJobId) : null,
     enabled: !!activeJobId,
-    refetchInterval: () => {
+    refetchInterval: (data) => {
       // Poll every 2 seconds while the job is active
-      return jobStatus?.status === 'queued' || jobStatus?.status === 'processing' ? 2000 : false;
-    }
+      return data?.status === 'queued' || data?.status === 'processing' ? 2000 : false;
+    },
+    refetchIntervalInBackground: false
   });
   
   // Effect to fetch job results when status is completed
