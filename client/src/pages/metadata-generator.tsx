@@ -86,20 +86,18 @@ export default function MetadataGenerator() {
     queryKey: ['/api/metadata/jobs', activeJobId, 'status'],
     queryFn: () => activeJobId ? MetadataService.getJobStatus(activeJobId) : null,
     enabled: !!activeJobId,
-    refetchInterval: (data) => {
-      // Poll more frequently if the job is still in progress
-      if (data?.status === 'queued' || data?.status === 'processing') {
-        return 2000; // 2 seconds
-      }
-      return false; // Stop polling when complete
-    },
-    onSuccess: (data) => {
-      if (data?.status === 'completed') {
-        // Fetch the results when the job is complete
-        fetchJobResults.mutate(data.jobId);
-      }
-    },
+    refetchInterval: () => {
+      // Poll every 2 seconds while the job is active
+      return jobStatus?.status === 'queued' || jobStatus?.status === 'processing' ? 2000 : false;
+    }
   });
+  
+  // Effect to fetch job results when status is completed
+  React.useEffect(() => {
+    if (jobStatus?.status === 'completed' && activeJobId) {
+      fetchJobResults.mutate(activeJobId);
+    }
+  }, [jobStatus]);
   
   // Mutation for parsing URLs
   const parseUrls = useMutation({
@@ -133,7 +131,7 @@ export default function MetadataGenerator() {
       }
       
       // Remove duplicates
-      const uniqueUrls = [...new Set(urlsList)];
+      const uniqueUrls = Array.from(new Set(urlsList));
       
       // Process each URL to extract content
       const pagePromises = uniqueUrls.map(url => MetadataService.extractPageContent(url));

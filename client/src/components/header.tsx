@@ -1,7 +1,7 @@
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/auth-context';
-import { LucideSearch, Menu, History } from 'lucide-react';
+import { LucideSearch, Menu, History, FileText } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -68,6 +68,12 @@ export default function Header() {
                         Historique
                       </Button>
                     </Link>
+                    <Link href="/metadata-generator" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        Metadata Generator
+                      </Button>
+                    </Link>
                     <div className="px-2">
                       <Button onClick={handleLogout} variant="ghost" className="w-full justify-start">
                         Logout
@@ -105,6 +111,12 @@ export default function Header() {
                     <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
                       <History className="h-4 w-4" />
                       Historique
+                    </DropdownMenuItem>
+                  </Link>
+                  <Link href="/metadata-generator">
+                    <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      Metadata Generator
                     </DropdownMenuItem>
                   </Link>
                   <DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
