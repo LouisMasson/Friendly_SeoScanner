@@ -11,6 +11,8 @@ import session from "express-session";
 import pgSession from "connect-pg-simple";
 import postgres from "postgres";
 import { aiService } from "./ai-service";
+import { metadataService } from "./metadata-service";
+import { BulkMetadataRequest, BulkMetadataResponse, JobStatus } from "@shared/types";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup session store with PostgreSQL

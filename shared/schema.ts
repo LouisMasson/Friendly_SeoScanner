@@ -62,6 +62,33 @@ export const insertSEOAnalysisSchema = createInsertSchema(seoAnalyses).pick({
 export type InsertSEOAnalysis = z.infer<typeof insertSEOAnalysisSchema>;
 export type SEOAnalysisRecord = typeof seoAnalyses.$inferSelect;
 
+// Bulk metadata generation jobs
+export const metadataJobs = pgTable("metadata_jobs", {
+  id: serial("id").primaryKey(),
+  jobId: text("job_id").notNull().unique(),
+  status: text("status").notNull().default('queued'),
+  progress: integer("progress").notNull().default(0),
+  message: text("message"),
+  data: jsonb("data").notNull(), // Store the job configuration and results
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  userId: integer("user_id").references(() => users.id, { onDelete: 'cascade' }),
+  resultUrl: text("result_url"),
+});
+
+export const insertMetadataJobSchema = createInsertSchema(metadataJobs).pick({
+  jobId: true,
+  status: true,
+  progress: true,
+  message: true,
+  data: true,
+  userId: true,
+  resultUrl: true,
+});
+
+export type InsertMetadataJob = z.infer<typeof insertMetadataJobSchema>;
+export type MetadataJobRecord = typeof metadataJobs.$inferSelect;
+
 // Define all our response types for the SEO analyzer
 export const seoAnalysisSchema = z.object({
   url: z.string().url(),
