@@ -4,6 +4,7 @@ import { AnalysisResult } from "@/lib/types";
 import { SEOAnalyzerService } from "@/services/seo-analyzer";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
+import { Button } from "@/components/ui/button";
 import URLInput from "@/components/url-input";
 import ResultSummary from "@/components/result-summary";
 import CategorySummary from "@/components/category-summary";
@@ -15,8 +16,8 @@ import AIRecommendations from "@/components/ai-recommendations";
 import MobileFriendliness from "@/components/mobile-friendliness";
 import PageSpeed from "@/components/page-speed";
 import ShareButton from "@/components/share-button";
-import { Search, Loader2 } from "lucide-react";
-import { useLocation } from "wouter";
+import { Search, Loader2, FileText, Sparkles, Check } from "lucide-react";
+import { useLocation, Link } from "wouter";
 
 export default function Home() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -116,6 +117,43 @@ export default function Home() {
           onAnalyze={handleAnalyze} 
           isLoading={analyzeUrlMutation.isPending || isLoadingShared} 
         />
+        
+        {/* AI Metadata Generator Card */}
+        <div className="mt-6 mb-8 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 rounded-lg p-6 shadow-sm">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
+            <div className="mb-4 md:mb-0 md:mr-6">
+              <div className="flex items-center">
+                <Sparkles className="h-5 w-5 text-blue-500 mr-2" />
+                <h2 className="text-xl font-semibold text-blue-700">New! AI Metadata Generator</h2>
+              </div>
+              <p className="mt-2 text-gray-600">
+                Generate optimized title tags, meta descriptions, and JSON-LD schema markup for multiple pages using our powerful AI engine.
+              </p>
+              <ul className="mt-3 space-y-1">
+                <li className="flex items-center text-sm text-gray-600">
+                  <Check className="h-4 w-4 text-green-500 mr-2" />
+                  Process content from multiple URLs at once
+                </li>
+                <li className="flex items-center text-sm text-gray-600">
+                  <Check className="h-4 w-4 text-green-500 mr-2" />
+                  AI optimized for traffic, conversions, or engagement
+                </li>
+                <li className="flex items-center text-sm text-gray-600">
+                  <Check className="h-4 w-4 text-green-500 mr-2" />
+                  Export results in CSV or JSON format
+                </li>
+              </ul>
+            </div>
+            <div className="w-full md:w-auto">
+              <Link href="/metadata-generator">
+                <Button className="w-full md:w-auto bg-blue-600 hover:bg-blue-700">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Try AI Metadata Generator
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
         
         {isLoadingShared && (
           <div className="text-center mt-8">

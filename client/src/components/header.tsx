@@ -62,16 +62,16 @@ export default function Header() {
                       </Avatar>
                       <div className="text-sm font-medium">{user?.name}</div>
                     </div>
+                    <Link href="/metadata-generator" onClick={() => setIsMenuOpen(false)}>
+                      <Button variant="outline" className="w-full justify-start flex items-center gap-2 mb-2">
+                        <FileText className="h-4 w-4" />
+                        AI Metadata Generator
+                      </Button>
+                    </Link>
                     <Link href="/historique" onClick={() => setIsMenuOpen(false)}>
                       <Button variant="ghost" className="w-full justify-start flex items-center gap-2">
                         <History className="h-4 w-4" />
                         Historique
-                      </Button>
-                    </Link>
-                    <Link href="/metadata-generator" onClick={() => setIsMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start flex items-center gap-2">
-                        <FileText className="h-4 w-4" />
-                        Metadata Generator
                       </Button>
                     </Link>
                     <div className="px-2">
@@ -96,34 +96,42 @@ export default function Header() {
         ) : (
           <nav className="flex items-center gap-2">
             {isAuthenticated ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback>{user?.name ? getInitials(user.name) : 'U'}</AvatarFallback>
-                    </Avatar>
+              <>
+                <Link href="/metadata-generator">
+                  <Button variant="outline" className="flex items-center gap-2 mr-2">
+                    <FileText className="h-4 w-4" />
+                    AI Metadata
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <Link href="/historique">
-                    <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
-                      <History className="h-4 w-4" />
-                      Historique
+                </Link>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarFallback>{user?.name ? getInitials(user.name) : 'U'}</AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <Link href="/historique">
+                      <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
+                        <History className="h-4 w-4" />
+                        Historique
+                      </DropdownMenuItem>
+                    </Link>
+                    <Link href="/metadata-generator">
+                      <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
+                        <FileText className="h-4 w-4" />
+                        Metadata Generator
+                      </DropdownMenuItem>
+                    </Link>
+                    <DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
+                      Logout
                     </DropdownMenuItem>
-                  </Link>
-                  <Link href="/metadata-generator">
-                    <DropdownMenuItem className="cursor-pointer flex items-center gap-2">
-                      <FileText className="h-4 w-4" />
-                      Metadata Generator
-                    </DropdownMenuItem>
-                  </Link>
-                  <DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
             ) : (
               <>
                 <Link href="/login">
