@@ -2,6 +2,17 @@
 
 A powerful SEO meta tag analyzer that provides comprehensive website optimization insights with enhanced user engagement and real-time analysis.
 
+<!-- Add the SEO Analyzer Demo GIF here -->
+<!-- ![SEO Analyzer Demo](path-to-your-gif.gif) -->
+
+## How It Works
+
+1. **Input URL**: Enter any website URL to begin the analysis
+2. **Real-time Analysis**: The system crawls the website and evaluates key SEO parameters
+3. **Comprehensive Reports**: View detailed metrics on meta tags, mobile-friendliness, and page speed
+4. **AI Recommendations**: Receive intelligent suggestions for improvement powered by DeepSeek
+5. **Export & Share**: Generate PDF reports or share analysis results with colleagues
+
 ## Key Technologies
 
 - **Frontend**: React.js with interactive UI components and smooth animations
@@ -19,13 +30,6 @@ A powerful SEO meta tag analyzer that provides comprehensive website optimizatio
 - Shareable reports
 - PDF export capabilities
 - User history tracking
-
-## Getting Started
-
-1. Clone the repository
-2. Install dependencies with `npm install`
-3. Start the development server with `npm run dev`
-4. Access the application at http://localhost:5000
 
 ## License
 
