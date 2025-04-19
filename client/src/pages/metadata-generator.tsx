@@ -5,7 +5,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { Link } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
-import { LoaderCircle, FileUp, RefreshCw, Play, Upload, Download, CheckCircle, AlertTriangle, XCircle, FileJson } from 'lucide-react';
+import { LoaderCircle, FileUp, RefreshCw, Play, Upload, Download, CheckCircle, AlertTriangle, XCircle, FileJson, BarChart } from 'lucide-react';
+import JsonVisualizer from '@/components/json-visualizer';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -51,6 +52,8 @@ export default function MetadataGenerator() {
   const [pages, setPages] = useState<PageData[]>([]);
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [jobResults, setJobResults] = useState<BulkMetadataResponse | null>(null);
+  const [showVisualizer, setShowVisualizer] = useState(false);
+  const [visualizerData, setVisualizerData] = useState<any>(null);
   
   // JSON file input ref
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -285,6 +288,12 @@ export default function MetadataGenerator() {
     window.open(url, '_blank');
   };
   
+  // Handle opening the JSON visualizer
+  const handleOpenVisualizer = (data: any, title?: string) => {
+    setVisualizerData(data);
+    setShowVisualizer(true);
+  };
+  
   // Handle JSON file upload
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -387,6 +396,16 @@ export default function MetadataGenerator() {
       <p className="text-gray-600 mb-8">
         Generate optimized title tags, meta descriptions, and JSON-LD schema markup using AI
       </p>
+      
+      {/* JSON Visualizer Dialog */}
+      <Dialog open={showVisualizer} onOpenChange={setShowVisualizer}>
+        <DialogContent className="max-w-5xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>JSON Visualization</DialogTitle>
+          </DialogHeader>
+          <JsonVisualizer data={visualizerData} />
+        </DialogContent>
+      </Dialog>
       
       {!isAuthenticated && (
         <Alert variant="destructive" className="mb-8">
@@ -767,6 +786,14 @@ https://example.com/products"
                                   <Button variant="outline" size="sm" onClick={() => handleDownload('csv')}>
                                     <Download className="h-4 w-4 mr-1" />
                                     CSV
+                                  </Button>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    onClick={() => handleOpenVisualizer(jobResults, 'Metadata Results Visualization')}
+                                  >
+                                    <BarChart className="h-4 w-4 mr-1" />
+                                    Visualize
                                   </Button>
                                 </div>
                               </div>
