@@ -522,6 +522,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     }
   });
+  
+  // Endpoint to extract content from a URL (proxy to avoid CORS issues)
+  app.post("/api/metadata/extract-content", async (req: Request, res: Response) => {
+    try {
+      const { url } = req.body;
+      
+      if (!url) {
+        return res.status(400).json({ message: "URL is required" });
+      }
+      
+      // Add protocol if missing
+      const formattedUrl = url.startsWith('http') ? url : `https://${url}`;
+      
+      // Using node-fetch to get the content
+      const fetch = (await import('node-fetch')).default;
+      const response = await fetch(formattedUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; SEOMetaTagAnalyzer/1.0)',
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch URL: ${response.statusText}`);
+      }
+      
+      const html = await response.text();
+      
+      // Return HTML content for client-side parsing
+      res.json({ 
+        url: formattedUrl,
+        html 
+      });
+    } catch (error) {
+      console.error("Error extracting content:", error);
+      res.status(500).json({ 
+        message: "Failed to extract content", 
+        error: String(error),
+        url: req.body.url 
+      });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

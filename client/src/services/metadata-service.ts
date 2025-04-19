@@ -129,15 +129,34 @@ export const MetadataService = {
   },
 
   /**
-   * Utility to extract text content from a webpage (client-side)
+   * Utility to extract text content from a webpage
    * @param url URL to extract content from
    * @returns Promise with page data
    */
   async extractPageContent(url: string): Promise<PageData> {
     try {
-      // This is a client-side utility function, so we'll use fetch directly
-      const response = await fetch(url);
-      const html = await response.text();
+      // Use our API proxy to avoid CORS issues
+      const response = await fetch('/api/metadata/extract-content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch content: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      
+      // Return the data directly if it's already in PageData format
+      if (data.url && (data.title !== undefined)) {
+        return data as PageData;
+      }
+      
+      // Otherwise, parse the HTML if we received it
+      const html = data.html;
       
       // Create a temporary DOM to parse the HTML
       const parser = new DOMParser();
@@ -194,9 +213,21 @@ export const MetadataService = {
    */
   async extractUrlsFromSitemap(sitemapUrl: string): Promise<string[]> {
     try {
-      // Fetch the sitemap
-      const response = await fetch(sitemapUrl);
-      const xml = await response.text();
+      // Use our API proxy to avoid CORS issues
+      const response = await fetch('/api/metadata/extract-content', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: sitemapUrl }),
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch sitemap: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
+      const xml = data.html;
       
       // Create a temporary DOM to parse the XML
       const parser = new DOMParser();
