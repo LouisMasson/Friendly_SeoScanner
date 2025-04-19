@@ -52,6 +52,9 @@ export default function MetadataGenerator() {
   const [activeJobId, setActiveJobId] = useState<string | null>(null);
   const [jobResults, setJobResults] = useState<BulkMetadataResponse | null>(null);
   
+  // JSON file input ref
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  
   // URL input form
   const urlForm = useForm<UrlInputFormValues>({
     resolver: zodResolver(urlInputSchema),
@@ -282,6 +285,102 @@ export default function MetadataGenerator() {
     window.open(url, '_blank');
   };
   
+  // Handle JSON file upload
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      if (!event.target.files || event.target.files.length === 0) {
+        return;
+      }
+      
+      const file = event.target.files[0];
+      if (file.type !== 'application/json') {
+        toast({
+          title: 'Invalid File Type',
+          description: 'Please upload a JSON file',
+          variant: 'destructive',
+        });
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const content = e.target?.result as string;
+          const jsonData = JSON.parse(content);
+          
+          // Check if the JSON is valid and has the expected structure
+          if (!Array.isArray(jsonData)) {
+            // Check if it's possibly a single page
+            if (jsonData.url) {
+              setPages([jsonData as PageData]);
+              toast({
+                title: 'JSON Loaded',
+                description: `Successfully loaded 1 page from JSON`,
+              });
+            } else if (jsonData.pages && Array.isArray(jsonData.pages)) {
+              // Check if it's a BulkMetadataRequest format
+              setPages(jsonData.pages as PageData[]);
+              
+              // Also set options if available
+              if (jsonData.options) {
+                const opts = jsonData.options;
+                optionsForm.setValue('optimizeFor', opts.optimizeFor || 'traffic');
+                if (opts.industry) optionsForm.setValue('industry', opts.industry);
+                if (opts.targetKeywords) {
+                  optionsForm.setValue('targetKeywords', 
+                    Array.isArray(opts.targetKeywords) ? opts.targetKeywords.join(', ') : opts.targetKeywords
+                  );
+                }
+                if (opts.maxTitleLength) optionsForm.setValue('maxTitleLength', opts.maxTitleLength);
+                if (opts.maxDescriptionLength) optionsForm.setValue('maxDescriptionLength', opts.maxDescriptionLength);
+                if (opts.includeJsonLd !== undefined) optionsForm.setValue('includeJsonLd', opts.includeJsonLd);
+                if (opts.jsonLdType) optionsForm.setValue('jsonLdType', opts.jsonLdType);
+              }
+              
+              toast({
+                title: 'JSON Loaded',
+                description: `Successfully loaded ${jsonData.pages.length} pages from JSON`,
+              });
+            } else {
+              throw new Error('Invalid JSON format. Expected an array of pages or a valid page object');
+            }
+          } else {
+            // It's an array of pages
+            setPages(jsonData as PageData[]);
+            toast({
+              title: 'JSON Loaded',
+              description: `Successfully loaded ${jsonData.length} pages from JSON`,
+            });
+          }
+          
+          // Move to the next tab 
+          setActiveTab('preview');
+          
+          // Reset file input
+          if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+          }
+        } catch (error) {
+          console.error('Error parsing JSON:', error);
+          toast({
+            title: 'JSON Parse Error',
+            description: error instanceof Error ? error.message : 'Invalid JSON format',
+            variant: 'destructive',
+          });
+        }
+      };
+      
+      reader.readAsText(file);
+    } catch (error) {
+      console.error('Error handling file upload:', error);
+      toast({
+        title: 'File Upload Error',
+        description: error instanceof Error ? error.message : 'An error occurred processing the file',
+        variant: 'destructive',
+      });
+    }
+  };
+  
   return (
     <div className="container py-8">
       <h1 className="text-3xl font-bold mb-4">AI Metadata Generator</h1>
@@ -314,6 +413,36 @@ export default function MetadataGenerator() {
               <CardDescription>Paste URLs or provide a sitemap URL to analyze</CardDescription>
             </CardHeader>
             <CardContent>
+              <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                <h3 className="text-lg font-medium mb-2">Import from JSON</h3>
+                <p className="text-sm text-slate-600 mb-3">
+                  Upload a JSON file with page data to analyze. The JSON should contain an array of page objects or a single page object.
+                </p>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="file"
+                    accept="application/json"
+                    onChange={handleFileUpload}
+                    ref={fileInputRef}
+                    className="hidden"
+                    id="jsonFileInput"
+                  />
+                  <Button 
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <FileJson className="mr-2 h-4 w-4" />
+                    Select JSON File
+                  </Button>
+                  <div className="text-sm text-slate-500">
+                    Supported formats: 
+                    <code className="ml-1 text-xs bg-slate-100 p-1 rounded">PageData[]</code> or 
+                    <code className="ml-1 text-xs bg-slate-100 p-1 rounded">BulkMetadataRequest</code>
+                  </div>
+                </div>
+              </div>
+              
               <form onSubmit={urlForm.handleSubmit(onUrlFormSubmit)} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="urls">URLs (one per line)</Label>
