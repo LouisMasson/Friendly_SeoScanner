@@ -321,7 +321,7 @@ Pages to optimize:
    * @returns List of suggested improvements
    */
   generateSuggestedImprovements(results: GeneratedMetadata[]): string[] {
-    const improvements: Set<string> = new Set();
+    const improvements: string[] = [];
     
     // Count issues by type
     const issueCount: Record<string, number> = {};
@@ -348,15 +348,15 @@ Pages to optimize:
     for (const [issue, count] of Object.entries(issueCount)) {
       const percentage = Math.round((count / results.length) * 100);
       if (percentage > 20) {
-        improvements.add(`${issue} (${percentage}% of pages)`);
+        improvements.push(`${issue} (${percentage}% of pages)`);
       }
     }
     
     // Add general improvements
-    improvements.add('Ensure all titles include primary keywords near the beginning');
-    improvements.add('Include a clear call-to-action in meta descriptions');
+    improvements.push('Ensure all titles include primary keywords near the beginning');
+    improvements.push('Include a clear call-to-action in meta descriptions');
     
-    return [...improvements];
+    return improvements;
   },
 
   /**

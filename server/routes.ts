@@ -12,7 +12,7 @@ import pgSession from "connect-pg-simple";
 import postgres from "postgres";
 import { aiService } from "./ai-service";
 import { metadataService } from "./metadata-service";
-import { BulkMetadataRequest, BulkMetadataResponse, JobStatus } from "@shared/types";
+import { BulkMetadataRequest, BulkMetadataResponse, JobStatus, GeneratedMetadata } from "@shared/types";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup session store with PostgreSQL
@@ -338,6 +338,186 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       return res.status(500).json({ 
         message: "Failed to generate AI recommendations",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Bulk metadata generation endpoints
+  
+  // Start a new metadata generation job
+  app.post("/api/metadata/generate", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      // Validate request body
+      if (!req.body.pages || !Array.isArray(req.body.pages) || !req.body.options) {
+        return res.status(400).json({ message: "Invalid request format. Requires pages array and options object." });
+      }
+      
+      const request: BulkMetadataRequest = {
+        pages: req.body.pages,
+        options: req.body.options
+      };
+      
+      // Validate pages
+      if (request.pages.length === 0) {
+        return res.status(400).json({ message: "No pages provided for analysis" });
+      }
+      
+      // For scalability and to prevent overloading, limit batch size
+      const maxPageCount = 100;
+      if (request.pages.length > maxPageCount) {
+        return res.status(400).json({ 
+          message: `Too many pages. Maximum ${maxPageCount} pages per request.`,
+          details: `Requested ${request.pages.length} pages.`
+        });
+      }
+      
+      // Create job and start processing
+      const userId = (req.user as any).id;
+      const jobStatus = await metadataService.createJob(request, userId);
+      
+      return res.json({
+        message: "Metadata generation job started",
+        jobId: jobStatus.jobId,
+        status: jobStatus
+      });
+    } catch (error) {
+      console.error("Error starting metadata generation job:", error);
+      return res.status(500).json({ 
+        message: "Failed to start metadata generation job",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+  
+  // Get job status
+  app.get("/api/metadata/jobs/:jobId/status", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const { jobId } = req.params;
+      
+      if (!jobId) {
+        return res.status(400).json({ message: "Job ID is required" });
+      }
+      
+      const jobStatus = await metadataService.getJobStatus(jobId);
+      
+      if (!jobStatus) {
+        return res.status(404).json({ message: "Job not found" });
+      }
+      
+      return res.json(jobStatus);
+    } catch (error) {
+      console.error("Error getting job status:", error);
+      return res.status(500).json({ 
+        message: "Failed to get job status",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+  
+  // Get job results
+  app.get("/api/metadata/jobs/:jobId/results", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const { jobId } = req.params;
+      
+      if (!jobId) {
+        return res.status(400).json({ message: "Job ID is required" });
+      }
+      
+      const jobResults = await metadataService.getJobResults(jobId);
+      
+      if (!jobResults) {
+        return res.status(404).json({ message: "Job not found" });
+      }
+      
+      return res.json(jobResults);
+    } catch (error) {
+      console.error("Error getting job results:", error);
+      return res.status(500).json({ 
+        message: "Failed to get job results",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+  
+  // Get user's jobs
+  app.get("/api/metadata/jobs", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as any).id;
+      const limit = Number(req.query.limit) || 10;
+      
+      const jobs = await metadataService.getUserJobs(userId, limit);
+      
+      return res.json(jobs);
+    } catch (error) {
+      console.error("Error getting user jobs:", error);
+      return res.status(500).json({ 
+        message: "Failed to get user jobs",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+  
+  // Export job results as CSV
+  app.get("/api/metadata/jobs/:jobId/export", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const { jobId } = req.params;
+      const format = req.query.format?.toString() || 'json';
+      
+      if (!jobId) {
+        return res.status(400).json({ message: "Job ID is required" });
+      }
+      
+      const jobResults = await metadataService.getJobResults(jobId);
+      
+      if (!jobResults) {
+        return res.status(404).json({ message: "Job not found" });
+      }
+      
+      if (jobResults.status !== 'completed') {
+        return res.status(400).json({ message: "Job not completed yet" });
+      }
+      
+      // Set content type and filename based on format
+      if (format === 'csv') {
+        const csvData = metadataService.exportAsCSV(jobResults.results);
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', `attachment; filename="metadata-${jobId}.csv"`);
+        return res.send(csvData);
+      } else {
+        // Default to JSON
+        const jsonData = metadataService.exportAsJSON(jobResults);
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Disposition', `attachment; filename="metadata-${jobId}.json"`);
+        return res.send(jsonData);
+      }
+    } catch (error) {
+      console.error("Error exporting job results:", error);
+      return res.status(500).json({ 
+        message: "Failed to export job results",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
+  });
+
+  // Validate metadata against Google guidelines
+  app.post("/api/metadata/validate", isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      if (!req.body.metadata) {
+        return res.status(400).json({ message: "Metadata object is required" });
+      }
+      
+      const metadata = req.body.metadata as GeneratedMetadata;
+      const validationIssues = metadataService.validateAgainstGoogleGuidelines(metadata);
+      
+      return res.json({
+        valid: validationIssues.length === 0,
+        issues: validationIssues
+      });
+    } catch (error) {
+      console.error("Error validating metadata:", error);
+      return res.status(500).json({ 
+        message: "Failed to validate metadata",
         error: error instanceof Error ? error.message : "Unknown error"
       });
     }

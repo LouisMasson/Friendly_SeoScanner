@@ -7,6 +7,7 @@ import Home from "@/pages/home";
 import Login from "@/pages/login";
 import Register from "@/pages/register";
 import HistoryPage from "@/pages/history";
+import MetadataGenerator from "@/pages/metadata-generator";
 import { AuthProvider } from "@/contexts/auth-context";
 import Header from "@/components/header";
 
@@ -20,6 +21,7 @@ function Router() {
           <Route path="/login" component={Login} />
           <Route path="/register" component={Register} />
           <Route path="/historique" component={HistoryPage} />
+          <Route path="/metadata-generator" component={MetadataGenerator} />
           {/* Fallback to 404 */}
           <Route component={NotFound} />
         </Switch>
