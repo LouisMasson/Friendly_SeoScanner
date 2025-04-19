@@ -3,6 +3,7 @@
 A powerful SEO meta tag analyzer that provides comprehensive website optimization insights with enhanced user engagement and real-time analysis.
 
 <!-- Add the SEO Analyzer Demo GIF here -->
+
 <!-- ![SEO Analyzer Demo](path-to-your-gif.gif) -->
 
 ## How It Works
