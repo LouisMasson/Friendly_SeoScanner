@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 import { Link } from 'wouter';
 import { useToast } from '@/hooks/use-toast';
-import { LoaderCircle, FileUp, RefreshCw, Play, Upload, Download, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { LoaderCircle, FileUp, RefreshCw, Play, Upload, Download, CheckCircle, AlertTriangle, XCircle, FileJson } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
